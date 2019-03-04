@@ -1,9 +1,18 @@
 import os
-from flask import Flask, render_template, request, send_file
+from .User import User
+from .Config.Config import Config
+from flask import Flask, render_template, request, send_file, session
+from flask_login import LoginManager
 
 
-app = Flask(__name__)
+CONFIG_PATH     = 'C:\\Users\\XPS\\Desktop\\CSI2132_Project\\eHotels\\Server\\Config\\config.conf'
 
+app             = Flask(__name__)
+config          = Config(CONFIG_PATH)
+
+app.secret_key  = bytes(config.APP_INFO.secret_key, "utf-8")
+
+login_manager   = LoginManager()
 
 rooms = [
     {
@@ -36,10 +45,33 @@ rooms = [
 def root():
     return render_template("index.html", title="Home")
 
+'''
+LOGIN SECTION
+'''
+@app.route('/login', methods = ["GET", "POST"])
+def login():
+    if request.method == "GET":
+        # HANDLE GET - Return login form
+        return render_template("login.html", title="Login")
+    elif request.method == "POST":
+        print(request.form)
+        # HANDLE POST - Validate login
+        return render_template("index.html", title="Home")
+    pass
+
+
 @app.route("/browse_rooms")
 def browse_rooms():
     return render_template("browse_rooms.html", title = "Rooms", rooms = rooms)
 
+
+@app.route('/room_info/<int:room_id>/')
+def get_room_info():
+    return render_template("room_info.html", title = "Room Info")
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 @app.route("/get_image", methods = ["GET"])
 def get_image():
@@ -54,7 +86,7 @@ def get_image():
     del requested_img_name
 
     # Get the path to the image
-    image = f'{os.getcwd()}\\Server\\uploads\\{sanitized_img_name}.jpg'
+    image = f'{config.PATHS.uploads}\\{sanitized_img_name}.jpg'
 
     # Clean memory
     del sanitized_img_name
@@ -69,4 +101,5 @@ def get_image():
 
 
 def run(debug : bool):
+    login_manager.init_app(app)
     app.run(port = 48879, debug = debug)
