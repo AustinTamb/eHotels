@@ -3,9 +3,11 @@ from .User import User
 from .Config.Config import Config
 from flask import Flask, render_template, request, send_file, session
 from flask_login import LoginManager
-
+from Server.db_manager import DBManager
 
 CONFIG_PATH     = 'C:\\Users\\XPS\\Desktop\\CSI2132_Project\\eHotels\\Server\\Config\\config.conf'
+
+db_handler = DBManager.instance()
 
 app             = Flask(__name__)
 config          = Config(CONFIG_PATH)
