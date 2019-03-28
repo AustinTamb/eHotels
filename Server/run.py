@@ -1,13 +1,13 @@
 import os
 from .User import User
 from .Config.Config import Config
-from flask import Flask, render_template, request, send_file, session
+from flask import Flask, render_template, request, send_file, session, url_for
 from flask_login import LoginManager
 from Server.db_manager import DBManager
 
 CONFIG_PATH     = 'C:\\Users\\XPS\\Desktop\\CSI2132_Project\\eHotels\\Server\\Config\\config.conf'
 
-db_handler = DBManager.instance()
+#db_handler = DBManager.instance()
 
 app             = Flask(__name__)
 config          = Config(CONFIG_PATH)
@@ -67,8 +67,9 @@ def browse_rooms():
     return render_template("browse_rooms.html", title = "Rooms", rooms = rooms)
 
 
-@app.route('/room_info/<int:room_id>/')
-def get_room_info():
+@app.route('/room_info/<int:room_id>')
+def get_room_info(room_id):
+    print("GET ROOM!")
     return render_template("room_info.html", title = "Room Info")
 
 @login_manager.user_loader

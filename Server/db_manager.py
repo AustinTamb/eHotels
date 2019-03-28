@@ -11,9 +11,13 @@ class DBManager(Singleton):
 
 
     def send_query(self, query):
-        with self._connection as db:
-            #TODO: Send query
-            print(db)
+        result = ""
+        with self._connection.cursor() as db:
+            db.execute(query)
+
+            result += "\n".join(f"{entry}" for entry in db)
+        
+        return result
 
 
     @contextmanager
@@ -32,8 +36,8 @@ class DBManager(Singleton):
         except:
             print("ERROR OCCURED!")
         else:
-            yield db
+            yield cursor
         finally:
-            if isinstance(db, mysql.connector.CMySQLConnection):
+            if isinstance(db, mysql.connector.MySQLConnection):
                 db.close()
             db = None
