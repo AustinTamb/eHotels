@@ -1,9 +1,9 @@
-CREATE TABLE IF NOT EXISTS HotelChain(
+CREATE TABLE HotelChain(
     hotel_chain_id      INTEGER     PRIMARY KEY AUTOINCREMENT,
     hotel_chain_name    TEXT        NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Hotel(
+CREATE TABLE Hotel(
     hotel_id            INTEGER     PRIMARY KEY AUTOINCREMENT,
     hotel_chain_id      INTEGER     NOT NULL,
     hotel_name          TEXT        NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Hotel(
     FOREIGN KEY(hotel_chain_id) REFERENCES HotelChain(hotel_chain_id)
 );
 
-CREATE TABLE IF NOT EXISTS Room(
+CREATE TABLE Room(
     room_id             INTEGER     NOT NULL PRIMARY KEY,
     capacity            INTEGER     NOT NULL,
     hotel_id            INTEGER     NOT NULL,

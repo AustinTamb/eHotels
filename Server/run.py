@@ -1,9 +1,8 @@
 import os
-from Server.User import User
 from .Config.Config import Config
 from flask import Flask, render_template, request, send_file, session, url_for
 from flask_login import LoginManager
-from Server.Database.db_manager import DBManager
+from .Database.db_manager import DBManager
 
 CONFIG_PATH     = 'Server\\Config\\config.conf'
 
@@ -15,11 +14,8 @@ config          = Config(CONFIG_PATH)
 app.secret_key  = bytes(config.APP_INFO.secret_key, "utf-8")
 
 login_manager   = LoginManager()
-login_manager.init_app(app)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+db              = DBManager()
 
 rooms = [
     {
@@ -62,6 +58,9 @@ def login():
         return render_template("login.html", title="Login")
     elif request.method == "POST":
         print(request.form)
+        username = request.form['username']
+        print(f'Username: {username}')
+        print(f'Query result = {db.get_user(username)}')
         # HANDLE POST - Validate login
         return render_template("index.html", title="Home")
     pass
@@ -74,7 +73,6 @@ def browse_rooms():
 
 @app.route('/room_info/<int:room_id>')
 def get_room_info(room_id):
-    print("GET ROOM!")
     return render_template("room_info.html", title = "Room Info")
 
 @login_manager.user_loader

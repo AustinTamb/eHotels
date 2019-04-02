@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from Database.User import User
 import sqlite3
 
 class DBManager:
@@ -21,8 +20,10 @@ class DBManager:
         # Get a connection to the db
         with self.get_connection() as db:
             db.cursor().execute("""
-            CREATE TABLE User
-                (username TEXT PRIMARY KEY, password TEXT)
+            CREATE TABLE IF NOT EXISTS User(
+                username TEXT PRIMARY KEY, 
+                password TEXT NOT NULL
+            )
             """)
             db.commit()
 
@@ -42,6 +43,7 @@ class DBManager:
         if conditions is not None:
             query += f" WHERE {conditions}"
         
+        print(f"Query: {query}")
         with self.get_connection() as db:
             return [entry for entry in db.cursor().execute(query)]
 
@@ -55,6 +57,9 @@ class DBManager:
                 VALUES ('{user}', '{password}')
             """)
             db.commit()
+
+    def get_user(self, username):
+        return self.generic_query("User", "*", f"username = '{username}'")
 
 
     #TODO: Need methods to add entries in table
