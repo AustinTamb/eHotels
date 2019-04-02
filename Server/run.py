@@ -5,8 +5,7 @@ from flask_login import LoginManager
 from .Database.db_manager import DBManager
 
 CONFIG_PATH     = 'Server\\Config\\config.conf'
-
-#db_handler = DBManager.instance()
+logged_in = {}
 
 app             = Flask(__name__)
 config          = Config(CONFIG_PATH)
@@ -60,10 +59,24 @@ def login():
         print(request.form)
         username = request.form['username']
         print(f'Username: {username}')
-        print(f'Query result = {db.get_user(username)}')
-        # HANDLE POST - Validate login
-        return render_template("index.html", title="Home")
+        user = db.get_user(username)
+        if user is not None and user.login(request.form['password']):
+            logged_in[username] = user
+            # HANDLE POST - Validate login
+            return render_template("index.html", title="Home", user=user)
+        else:
+            return render_template("index.html", title="Home")
     pass
+
+
+@app.route('/logout/<string:username>', methods = ["POST"])
+def logout(username):
+    print("LOGGING OUT")
+    user = logged_in.get(username)
+    if user is not None:
+        user.logout()
+        del logged_in[username]
+    return render_template("index.html", title="Home")
 
 
 @app.route("/browse_rooms")
@@ -77,7 +90,7 @@ def get_room_info(room_id):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return logged_in.get(user_id)
 
 
 def run(debug : bool):

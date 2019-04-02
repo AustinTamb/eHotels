@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from .User import User
 import sqlite3
 
 class DBManager:
@@ -22,7 +23,8 @@ class DBManager:
             db.cursor().execute("""
             CREATE TABLE IF NOT EXISTS User(
                 username TEXT PRIMARY KEY, 
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                name     TEXT NOT NULL
             )
             """)
             db.commit()
@@ -42,24 +44,40 @@ class DBManager:
 
         if conditions is not None:
             query += f" WHERE {conditions}"
-        
+        ret = []
         print(f"Query: {query}")
         with self.get_connection() as db:
-            return [entry for entry in db.cursor().execute(query)]
+            tmp = db.cursor()
+            qry = tmp.execute(query)
+            ret = qry.fetchone()
+        return ret
 
-    def add_user(self, user, password):
+    def add_user(self, user, password, name):
         """
             Method to add a new user
         """
+        query = f"""
+            INSERT INTO User(username, password, name)
+            VALUES (
+                '{user}', 
+                '{password}', 
+                '{name}'
+            )
+        """
+        print(query)
         with self.get_connection() as db:
-            db.cursor().execute(f"""
-                INSERT INTO User(username, password) 
-                VALUES ('{user}', '{password}')
-            """)
+            db.cursor().execute(query)
             db.commit()
 
     def get_user(self, username):
-        return self.generic_query("User", "*", f"username = '{username}'")
+        user = self.generic_query("User", "*", f"username = '{username}'")
+        print(user)
+
+        if user is None:
+            return None
+
+        tmp = User(user[0], user[1], user[2])
+        return tmp
 
 
     #TODO: Need methods to add entries in table

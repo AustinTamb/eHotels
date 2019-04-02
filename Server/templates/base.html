@@ -24,7 +24,12 @@
                     <a class="nav-link" href="{{ url_for('browse_rooms') }}"><i class="fas fa-search"></i> Browse</a>
                 </li>
                 {% if user %}
-                    <button href="/logout?user={{ user.username }}" class="nav-link">Logout</button>
+                    <li>
+                        {{ user._name }}
+                    </li>
+                    <li class="navbar-item float-right">
+                        <a href="{{ url_for('logout', username=user._username) }}" class="nav-link float:right">Logout</a>
+                    </li>
                 {% else %}
                     <li class="navbar-item float-right">
                         <a href="{{ url_for('login') }}" class="nav-link float:right">Login</a>
