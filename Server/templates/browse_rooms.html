@@ -5,7 +5,7 @@
         <div class="card-deck">
         {% for room in rooms %}
             <div class="card">
-                <img class="card-img-top" src="/get_image?image={{ room.image }}" alt="No Room Picture Found!">
+                <img class="card-img-top" src="{{ url_for('static', filename=room.image) }}" alt="No Room Picture Found!">
                 <div class="card-body">
                     <h5 class="card-title">{{ room.capacity }} Person Room </h5>
                     <p class="card-text">{{ room.price }}$ / night<!-- TODO: GENERATE ROOM DESCRIPTION --></p>

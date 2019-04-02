@@ -1,23 +1,45 @@
 from contextlib import contextmanager
-import mysql.connector
+from Server.Database.User import User
+import sqlite3
 
 class DBManager:
-    def __init__(self, host, user, password):
-        self._connection = get_connection()
-        self._hostname = host
-        self._user = user
-        self._password = password
+    def __init__(self):
+        # Setup to have no connection
+        self._connection = None
+
+    def __del__(self):
+        """
+            Cleans up connections on the deletion of
+            the class isntance.
+        """
+        if self._connection is not None:
+            self._connection.close()
+        del self._connection
+
+    def create_tables(self):
+        # TODO: DO this properly
+        # Opens the schema.sql file in the database folder
+        with open("Database/Schema.sql") as file:
+            # Get a connection to the db
+            with self.get_connection() as db:
+
+                for i in file.read().split(";"):
+                    db.execute(i)
 
 
-    def send_query(self, query):
-        result = ""
-        with self._connection.cursor() as db:
-            db.execute(query)
+    def get_user(self):
+        #TODO: Query for system user
+        #TODO: Create User object and return it
+        pass
 
-            result += "\n".join(f"{entry}" for entry in db)
-        
-        return result
+    def add_hotel_chain(self, hotel_name):
+        pass
 
+    #TODO: Need methods to add entries in table
+
+    #TODO: Need methods to query for entries in the tables.
+
+    #TODO:
 
     @contextmanager
     def get_connection(self):
@@ -25,18 +47,15 @@ class DBManager:
         Generator to yield a connection to the database to be used 
         in contexts.
         """
-        db = None
         try:
-            db = mysql.connector.connect(
-                host = self._hostname,
-                user = self._username,
-                passwd = self._password
-            )
+            # If there's no connection created
+            if self._connection is None:
+                # Make one
+                self._connection = sqlite3.connect('eHotels.db')
         except:
-            print("ERROR OCCURED!")
+            print("Failed to open connection to db!")
         else:
-            yield cursor
+            yield self._connection
         finally:
-            if isinstance(db, mysql.connector.MySQLConnection):
-                db.close()
-            db = None
+            self._connection.close()
+            self._connection = None
