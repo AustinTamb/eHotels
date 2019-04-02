@@ -35,6 +35,20 @@ class DBManager:
     def add_hotel_chain(self, hotel_name):
         pass
 
+
+    def generic_query(self, table_name, values, conditions = None):
+        """
+        Generic query, make more queries where necessary
+        """
+        query = f"SELECT {values} FROM {table_name}"
+
+        if conditions is not None:
+            query += f" WHERE {conditions}"
+        
+        with self.get_connection() as db:
+            return db.cursor().execute(query)
+
+
     #TODO: Need methods to add entries in table
 
     #TODO: Need methods to query for entries in the tables.
