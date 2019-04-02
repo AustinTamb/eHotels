@@ -1,11 +1,12 @@
 from contextlib import contextmanager
-from Server.Database.User import User
+from Database.User import User
 import sqlite3
 
 class DBManager:
     def __init__(self):
         # Setup to have no connection
         self._connection = None
+        self.create_tables()
 
     def __del__(self):
         """
@@ -17,14 +18,13 @@ class DBManager:
         del self._connection
 
     def create_tables(self):
-        # TODO: DO this properly
-        # Opens the schema.sql file in the database folder
-        with open("Database/Schema.sql") as file:
-            # Get a connection to the db
-            with self.get_connection() as db:
-
-                for i in file.read().split(";"):
-                    db.execute(i)
+        # Get a connection to the db
+        with self.get_connection() as db:
+            db.cursor().execute("""
+            CREATE TABLE User
+                (username TEXT PRIMARY KEY, password TEXT)
+            """)
+            db.commit()
 
 
     def get_user(self):
@@ -32,13 +32,10 @@ class DBManager:
         #TODO: Create User object and return it
         pass
 
-    def add_hotel_chain(self, hotel_name):
-        pass
-
 
     def generic_query(self, table_name, values, conditions = None):
         """
-        Generic query, make more queries where necessary
+            Generic query, make more queries where necessary
         """
         query = f"SELECT {values} FROM {table_name}"
 
@@ -46,7 +43,18 @@ class DBManager:
             query += f" WHERE {conditions}"
         
         with self.get_connection() as db:
-            return db.cursor().execute(query)
+            return [entry for entry in db.cursor().execute(query)]
+
+    def add_user(self, user, password):
+        """
+            Method to add a new user
+        """
+        with self.get_connection() as db:
+            db.cursor().execute(f"""
+                INSERT INTO User(username, password) 
+                VALUES ('{user}', '{password}')
+            """)
+            db.commit()
 
 
     #TODO: Need methods to add entries in table
