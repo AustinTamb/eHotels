@@ -1,8 +1,7 @@
-from Server.Singleton import Singleton
 from contextlib import contextmanager
 import mysql.connector
 
-class DBManager(Singleton):
+class DBManager:
     def __init__(self, host, user, password):
         self._connection = get_connection()
         self._hostname = host
