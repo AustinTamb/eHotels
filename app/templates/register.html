@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Register</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <h2>Login Information</h2>
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <h3>Personal Information</h3>
+        <p>
+            {{ form.f_name.label }}<br>
+            {{ form.f_name(size=64) }}<br>
+            {% for error in form.f_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.m_name.label }}<br>
+            {{ form.m_name(size=64) }}<br>
+            {% for error in form.m_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.l_name.label }}<br>
+            {{ form.l_name(size=64) }}<br>
+            {% for error in form.l_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.sin.label }}<br>
+            {{ form.sin(size=9) }}<br>
+            {% for error in form.sin.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <h3>Contact Information</h3>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=64) }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone1.label }}<br>
+            {{ form.phone1(size=12) }}<br>
+            {% for error in form.phone1.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone2.label }}<br>
+            {{ form.phone2(size=12) }}<br>
+            {% for error in form.phone2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone3.label }}<br>
+            {{ form.phone3(size=12) }}<br>
+            {% for error in form.phone3.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <h2>Address Information</h2>
+        <p>
+            {{ form.country.label }}<br>
+            {{ form.country() }}<br>
+            {% for error in form.country.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.state.label }}<br>
+            {{ form.state(size=64) }}<br>
+            {% for error in form.state.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.city.label }}<br>
+            {{ form.city(size=64) }}<br>
+            {% for error in form.city.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.street_num.label }}<br>
+            {{ form.street_num(size=4) }}<br>
+            {% for error in form.street_num.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.street.label }}<br>
+            {{ form.street(size=64) }}<br>
+            {% for error in form.street.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.zip.label }}<br>
+            {{ form.zip(size=7) }}<br>
+            {% for error in form.zip.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

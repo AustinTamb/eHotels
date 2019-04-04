@@ -1,13 +1,11 @@
 import os
-from Server.User import User
 from .Config.Config import Config
 from flask import Flask, render_template, request, send_file, session, url_for
 from flask_login import LoginManager
-from Server.Database.db_manager import DBManager
+from .Database.db_manager import DBManager
 
 CONFIG_PATH     = 'Server\\Config\\config.conf'
-
-#db_handler = DBManager.instance()
+logged_in = {}
 
 app             = Flask(__name__)
 config          = Config(CONFIG_PATH)
@@ -15,11 +13,8 @@ config          = Config(CONFIG_PATH)
 app.secret_key  = bytes(config.APP_INFO.secret_key, "utf-8")
 
 login_manager   = LoginManager()
-login_manager.init_app(app)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+db              = DBManager()
 
 rooms = [
     {
@@ -62,9 +57,26 @@ def login():
         return render_template("login.html", title="Login")
     elif request.method == "POST":
         print(request.form)
-        # HANDLE POST - Validate login
-        return render_template("index.html", title="Home")
+        username = request.form['username']
+        print(f'Username: {username}')
+        user = db.get_user(username)
+        if user is not None and user.login(request.form['password']):
+            logged_in[username] = user
+            # HANDLE POST - Validate login
+            return render_template("index.html", title="Home", user=user)
+        else:
+            return render_template("index.html", title="Home")
     pass
+
+
+@app.route('/logout/<string:username>', methods = ["POST"])
+def logout(username):
+    print("LOGGING OUT")
+    user = logged_in.get(username)
+    if user is not None:
+        user.logout()
+        del logged_in[username]
+    return render_template("index.html", title="Home")
 
 
 @app.route("/browse_rooms")
@@ -74,12 +86,11 @@ def browse_rooms():
 
 @app.route('/room_info/<int:room_id>')
 def get_room_info(room_id):
-    print("GET ROOM!")
     return render_template("room_info.html", title = "Room Info")
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return logged_in.get(user_id)
 
 
 def run(debug : bool):

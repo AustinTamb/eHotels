@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from Database.User import User
 import sqlite3
 
 class DBManager:
@@ -21,23 +20,23 @@ class DBManager:
     def create_tables(self):
         # Get a connection to the db
         with self.get_connection() as db:
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS HotelChain(
                     hotel_chain_id      VARCHAR(15)                 NOT NULL PRIMARY KEY,
                     hotel_chain_name    VARCHAR(30)                 NOT NULL
-                );
-            )
-            db.cursor().execute(
+                )
+            """)
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS Hotel(
                     hotel_id VARCHAR(15) NOT NULL PRIMARY KEY,
                     hotel_chain_id      VARCHAR(15)                 NOT NULL,
                     hotel_name          VARCHAR(30)                 NOT NULL,
                     rating              ENUM('5','4','3','2','1')   NULL,
                     FOREIGN KEY (hotel_chain_id) REFERENCES HotelChain(hotel_chain_id)
-                );
-            ) 
+                )
+            """) 
             
-            db.cursor().execute(
+            db.cursor().execute("""
                CREATE TABLE IF NOT EXISTS Room(
                     room_id             VARCHAR(10)                 NOT NULL PRIMARY KEY,
                     capacity            INT                         NOT NULL,
@@ -49,10 +48,10 @@ class DBManager:
                     price               DECIMAL(20,2)               NOT NULL,
                     extendable          bit                         NOT NULL,
                     FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id)
-                );
-            )
+                )
+            """)
             
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS RoomOccupation(
                     booking_id          INT                         NOT NULL PRIMARY KEY,
                     room_id             VARCHAR(15)                 NOT NULL,
@@ -61,19 +60,19 @@ class DBManager:
                     to_date             DATE                        NOT NULL,
                     stay_duration       VARCHAR(15)                 NOT NULL,
                     FOREIGN KEY (room_id) REFERENCES Room(room_id)
-                );
+                """)
             )
             
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS Person(
                     SIN                 VARCHAR(15)                 NOT NULL PRIMARY KEY,
                     first_name          VARCHAR(20)                 NOT NULL,
                     last_name           VARCHAR(20)                 NOT NULL,
                     type                TEXT                        NOT NULL
-                );
-            )
+                )
+            """)
             
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS Address(
                     ZIP                 CHAR(6)                     NOT NULL,
                     city                VARCHAR(15)                 NOT NULL,
@@ -86,10 +85,10 @@ class DBManager:
                     FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id),
                     FOREIGN KEY (hotel_chain_id) REFERENCES HotelChain(hotel_chain_id),
                     FOREIGN KEY (SIN) REFERENCES Person(SIN)
-                );
-            )
+                )
+            """)
             
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS Contact(
                     phone_number        CHAR(12)                    NULL,
                     email               VARCHAR(30)                 NOT NULL,
@@ -99,10 +98,11 @@ class DBManager:
                     FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id),
                     FOREIGN KEY (hotel_chain_id) REFERENCES HotelChain(hotel_chain_id),
                     FOREIGN KEY (SIN) REFERENCES Person(SIN)
-                );
-            )
+                )
+            """)
             
             db.cursor().execute(
+                """
                 CREATE TABLE IF NOT EXISTS Employee(
                     employee_id         VARCHAR(15)                 NOT NULL PRIMARY KEY,
                     hotel_id            VARCHAR(15)                 NOT NULL,
@@ -117,11 +117,13 @@ class DBManager:
                     FOREIGN KEY (type) REFERENCES Person(type),
                     FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id),
                     FOREIGN KEY (booking_id) REFERENCES RoomOccupation(booking_id)
-                );
-            )
+                )
+            """)
             
-            db.cursor().execute(
+            db.cursor().execute("""
                 CREATE TABLE IF NOT EXISTS Customer(
+                    
+                    customer_id         INT                         NOT NULL PRIMARY KEY,
                     guest_status        VARCHAR(15)                 NOT NULL,
                     booking_id          INT                         NOT NULL,
                     amount_due          DECIMAL(20,2)               NOT NULL, 
@@ -131,9 +133,26 @@ class DBManager:
                     FOREIGN KEY (SIN) REFERENCES Person(SIN),
                     FOREIGN KEY (type) REFERENCES Person(type),
                     FOREIGN KEY (booking_id) REFERENCES RoomOccupation(booking_id)
-                );
-            )
+                )
+            """)
+
+            db.cursor().execute("""
+                CREATE TABLE IF NOT EXISTS Person(
+                    person_id           INT                         PRIMARY KEY,
+                    person_sin          INT                         NOT NULL,
+                )
+            """)
            
+            db.cursor().execute("""
+                CREATE TABLE IF NOT EXISTS User(
+                    username            TEXT                        PRIMARY KEY,
+                    user_id             INT                         NOT NULL,
+                    password            TEXT                        NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES Person(SIN)
+
+                )
+            """)
+
             db.commit()
 
 
@@ -151,20 +170,40 @@ class DBManager:
 
         if conditions is not None:
             query += f" WHERE {conditions}"
-        
+        ret = []
+        print(f"Query: {query}")
         with self.get_connection() as db:
-            return [entry for entry in db.cursor().execute(query)]
+            tmp = db.cursor()
+            qry = tmp.execute(query)
+            ret = qry.fetchone()
+        return ret
 
-    def add_user(self, user, password):
+    def add_user(self, user, password, name):
         """
             Method to add a new user
         """
+        query = f"""
+            INSERT INTO User(username, password, name)
+            VALUES (
+                '{user}', 
+                '{password}', 
+                '{name}'
+            )
+        """
+        print(query)
         with self.get_connection() as db:
-            db.cursor().execute(f"""
-                INSERT INTO User(username, password) 
-                VALUES ('{user}', '{password}')
-            """)
+            db.cursor().execute(query)
             db.commit()
+
+    def get_user(self, username):
+        user = self.generic_query("User", "*", f"username = '{username}'")
+        print(user)
+
+        if user is None:
+            return None
+
+        tmp = User(user[0], user[1], user[2])
+        return tmp
 
 
     #TODO: Need methods to add entries in table
