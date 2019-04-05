@@ -1,0 +1,42 @@
+{% block content %}
+    {% if users %}
+        <h2>Users:</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">SIN</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Middle Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Privilege</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+        {% for u in users %}
+            <tbody>
+                <tr>
+                    <th scope="row">{{ u.id }}</th>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.sin }}</td>
+                    <td>{{ u.first_name }}</td>
+                    <td>{{ u.middle_name }}</td>
+                    <td>{{ u.last_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.priv }}</td>
+                    <td>
+                        <a href="{{ url_for('addr_list', id = u.address) }}">{{ u.address }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('phone_list', id = u.phone) }}">{{ u.phone }}</a>
+                    </td>
+                </tr>
+            </tbody>
+        {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}

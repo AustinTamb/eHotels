@@ -8,20 +8,7 @@
             {{ form.hidden_tag() }}
             <div class="container">
                 <h3>Login Information</h3>
-                <p>
-                    {{ form.username.label }}<br>
-                    {{ form.username(size=20, class="form-control") }}<br>
-                    {% for error in form.username.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-                <p>
-                    {{ form.password.label }}<br>
-                    {{ form.password(size=20, class="form-control") }}<br>
-                    {% for error in form.password.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
+                {% include "add_type/login.html" %}
                 <p>
                     {{ form.password2.label }}<br>
                     {{ form.password2(size=20, class="form-control") }}<br>
@@ -32,118 +19,9 @@
             </div>
         </div>
         <div class="d-flex align-content-start flex-column">
-            <div class="container">
-                <h3>Personal Information</h3>
-                <div class="d-flex">
-                    <p>
-                        {{ form.f_name.label }}<br>
-                        {{ form.f_name(size=64, class="form-control") }}<br>
-                        {% for error in form.f_name.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p class="px-3">
-                        {{ form.m_name.label }}<br>
-                        {{ form.m_name(size=64, class="form-control") }}<br>
-                        {% for error in form.m_name.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p>
-                        {{ form.l_name.label }}<br>
-                        {{ form.l_name(size=64, class="form-control") }}<br>
-                        {% for error in form.l_name.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                </div>
-               
-                <p>
-                    {{ form.sin.label }}<br>
-                    {{ form.sin(size=9, class="form-control") }}<br>
-                    {% for error in form.sin.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-            </div>
-            <div class="container">
-                <h4>Address Information</h4>
-                <div class="d-flex">
-                    <p>
-                        {{ form.country.label }}<br>
-                        {{ form.country(class="form-control") }}<br>
-                        {% for error in form.country.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p class="px-3">
-                        {{ form.state.label }}<br>
-                        {{ form.state(size=18, class="form-control") }}<br>
-                        {% for error in form.state.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p>
-                        {{ form.city.label }}<br>
-                        {{ form.city(size=18, class="form-control") }}<br>
-                        {% for error in form.city.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p class="px-3">
-                        {{ form.street_num.label }}<br>
-                        {{ form.street_num(size=7, class="form-control") }}<br>
-                        {% for error in form.street_num.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p>
-                        {{ form.street.label }}<br>
-                        {{ form.street(size=32, class="form-control") }}<br>
-                        {% for error in form.street.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                    <p class="px-3">
-                        {{ form.zip.label }}<br>
-                        {{ form.zip(size=10, class="form-control") }}<br>
-                        {% for error in form.zip.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    </p>
-                </div>
-            </div>
-            <div class="container">
-                <h3>Contact Information</h3>
-                <p>
-                    {{ form.email.label }}<br>
-                    {{ form.email(size=64, class="form-control") }}<br>
-                    {% for error in form.email.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-                <p>
-                    {{ form.phone1.label }}<br>
-                    {{ form.phone1(size=12, class="form-control") }}<br>
-                    {% for error in form.phone1.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-                <p>
-                    {{ form.phone2.label }}<br>
-                    {{ form.phone2(size=12, class="form-control") }}<br>
-                    {% for error in form.phone2.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-                <p>
-                    {{ form.phone3.label }}<br>
-                    {{ form.phone3(size=12, class="form-control") }}<br>
-                    {% for error in form.phone3.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-            </div>
+            {% include "add_type/personal.html" %}
+            {% include "add_type/address.html" %}
+            {% include "add_type/contact.html" %}
         </div>
         <div class="container">
             <p>{{ form.submit(class="btn btn-dark") }}</p>

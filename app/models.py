@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     middle_name = db.Column(db.String(32), nullable = True)
     last_name   = db.Column(db.String(32), nullable = False)
     email       = db.Column(db.String(128), nullable = False)
+    priv        = db.Column(db.Integer, nullable = False, default = 0)
 
     address     = db.Column(db.Integer, db.ForeignKey('addr.id'))
     phone       = db.Column(db.Integer, db.ForeignKey('phone.id'))
@@ -52,16 +53,6 @@ class Chain(db.Model):
 
     hotels      = db.relationship('Hotel', backref = 'chain', lazy='dynamic')
 
-class Customer(db.Model):
-    id          = db.Column(db.Integer, primary_key = True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
-    bookings    = db.relationship('Booking', backref = 'cust', lazy='dynamic')
-
-class Employee(db.Model):
-    id          = db.Column(db.Integer, primary_key = True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
-    position    = db.Column(db.String(16), nullable = False)
-
 class Hotel(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     rooms_amt   = db.Column(db.Integer, nullable = False)
@@ -70,7 +61,7 @@ class Hotel(db.Model):
 
     address     = db.Column(db.Integer, db.ForeignKey('addr.id'))
     phone       = db.Column(db.Integer, db.ForeignKey('phone.id'))
-    manager     = db.Column(db.Integer, db.ForeignKey('employee.id'))
+    manager     = db.Column(db.Integer, db.ForeignKey('user.id'))
     owned_by    = db.Column(db.Integer, db.ForeignKey('chain.id'))
     
     rooms       = db.relationship("Room", backref = 'hotel', lazy='dynamic')
@@ -94,13 +85,13 @@ class Booking(db.Model):
     to_date     = db.Column(db.Date, unique = True)
 
     room        = db.Column(db.Integer, db.ForeignKey('room.id'))
-    customer    = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    user        = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    archive     = db.relationship('Archive', backref = 'booking', lazy='dynamic')
+    archive     = db.relationship('Archive', backref = 'a_booking', lazy='dynamic')
 
 class Archive(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
-    booking_id  = db.Column(db.Integer, db.ForeignKey('booking.id'))
+    book_id     = db.Column(db.Integer, db.ForeignKey('booking.id'))
 
 
 @login.user_loader

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit Profile - {{ username }}</h1>
+    <form action="" method="post">
+        {% include "add_type/personal.html" %}
+        {% include "add_type/address.html" %}
+        {% include "add_type/contact.html" %}
+        <div class="container">
+            <p>{{ form.submit(class="btn btn-dark") }}</p>
+        </div>
+    </form>
+{% endblock %}

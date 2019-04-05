@@ -1,0 +1,35 @@
+{% block content %}
+    {% if form %}
+    <div class="container">
+        <h3>Contact Information</h3>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=64, class="form-control") }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone1.label }}<br>
+            {{ form.phone1(size=12, class="form-control") }}<br>
+            {% for error in form.phone1.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone2.label }}<br>
+            {{ form.phone2(size=12, class="form-control") }}<br>
+            {% for error in form.phone2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.phone3.label }}<br>
+            {{ form.phone3(size=12, class="form-control") }}<br>
+            {% for error in form.phone3.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+    </div>
+    {% endif %}
+{% endblock %}

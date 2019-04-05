@@ -1,0 +1,32 @@
+{% block content %}
+    <div class="container">
+        <p>
+            {{ form.rooms_amt.label }}<br>
+            {{ form.rooms_amt(size=20, class="form-control") }}<br>
+            {% for error in form.rooms_amt.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.rating.label }}<br>
+            {{ form.rating(size=20, class="form-control") }}<br>
+            {% for error in form.rating.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.manager.label }}<br>
+            {{ form.manager(size=20, class="form-control") }}<br>
+            {% for error in form.manager.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.owned_by.label }}<br>
+            {{ form.owned_by(size=20, class="form-control") }}<br>
+            {% for error in form.owned_by.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+    </div>
+{% endblock %}

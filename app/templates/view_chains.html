@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col"># Hotels Owned</th>
+                <th scope="col">Email</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Address Id</th>
+                <th scope="col">Phone Id</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>    
+        {% for c in chains %}
+        <tbody>
+            <tr>
+                <th scope="row">{{ c.id }}</th>
+                <td>{{ c.name }}</td>
+                <td>{{ c.hotels_owned }}</td>
+                <td>{{ c.email }}</td>
+                <td>{{ c.rating }}</td>
+                <td>{{ c.address }}</td>
+                <td>{{ c.phone }}</td>
+                {% if current_user.priv == 2 %}
+                    <td><a href="{{ url_for('delete_chain', chain_id=c.id) }}"><span class="fa fa-trash-alt"></span></a></td>
+                {% endif %}
+            </tr>
+        </tbody>
+    {% endfor %}
+    </table>
+    <a href="{{ url_for('add_chain') }}" class="btn btn-green">Add Chain</a>
+{% endblock %}

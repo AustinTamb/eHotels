@@ -3,7 +3,7 @@
 {% block content %}
     <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
     {% if (current_user.id == user.id) %}
-        <button url="{{ url_for('update_profile', user=user) }}">Update Profile</btn>
+        <a class="btn btn-dark" href="{{ url_for('edit_user', username=user.username) }}">Update Profile</a>
         {% include 'booking.html' %}
     {% endif %}
 {% endblock %}

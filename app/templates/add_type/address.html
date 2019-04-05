@@ -1,0 +1,51 @@
+{% block content %}
+    {% if form %}
+    <div class="container">
+        <h4>Address Information</h4>
+        <div class="d-flex">
+            <p>
+                {{ form.country.label }}<br>
+                {{ form.country(class="form-control") }}<br>
+                {% for error in form.country.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p class="px-3">
+                {{ form.state.label }}<br>
+                {{ form.state(size=18, class="form-control") }}<br>
+                {% for error in form.state.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.city.label }}<br>
+                {{ form.city(size=18, class="form-control") }}<br>
+                {% for error in form.city.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p class="px-3">
+                {{ form.street_num.label }}<br>
+                {{ form.street_num(size=7, class="form-control") }}<br>
+                {% for error in form.street_num.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.street.label }}<br>
+                {{ form.street(size=32, class="form-control") }}<br>
+                {% for error in form.street.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p class="px-3">
+                {{ form.zip.label }}<br>
+                {{ form.zip(size=10, class="form-control") }}<br>
+                {% for error in form.zip.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
