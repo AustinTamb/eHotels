@@ -20,6 +20,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#"><span class="fa fa-search"></span> Browse Rooms</a>
                 </li>
+                
+                {% if current_user.priv > 1 %}
+                    <!-- Admin-->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_chains') }}"> View Hotel Chains</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_hotels') }}"> View Hotels</a>
+                    </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav fixed-right">
                 {% if current_user.is_anonymous %}
@@ -30,14 +40,6 @@
                         <a class="nav-link" href="{{ url_for('login') }}"><span class="fa fa-sign-in-alt"></span> Login</a>
                     </li>
                 {% else %}
-                    {% if current_user.priv > 1 %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_chains') }}"> View Hotel Chains</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_hotels') }}"> View Hotels</a>
-                    </li>
-                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}"><span class="fa fa-sign-out-alt"></span> Logout</a> 
                     </li>

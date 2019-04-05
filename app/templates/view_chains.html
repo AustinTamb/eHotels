@@ -31,5 +31,7 @@
         </tbody>
     {% endfor %}
     </table>
-    <a href="{{ url_for('add_chain') }}" class="btn btn-green">Add Chain</a>
+    {% if current_user.priv == 2 %}
+        <a href="{{ url_for('add_chain') }}" class="btn btn-green">Add Chain</a>
+    {% endif %}
 {% endblock %}
