@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">SIN</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Middle Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">email</th>
+                {% if current_user.priv > 1 %}
+                    <th scope="col">priv</th>
+                {% endif %}
+                <th scope="col">Address ID</th>
+                <th scope="col">Phone ID</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+    {% for u in users %}
+        <tbody>
+            <tr>
+                <th scope="row">{{ u.id }}</th>
+                <td>{{ u.username }}</td>
+                <td>{{ u.sin }}</td>
+                <td>{{ u.first_name }}</td>
+                <td>{{ u.middle_name }}</td>
+                <td>{{ u.last_name }}</td>
+                <td>{{ u.email }}</td>
+                {% if current_user.priv > 1 %}
+                    <td>{{ u.priv }}</td>
+                {% endif %}
+                <td>{{ u.address }}</td>
+                <td>{{ u.phone }}</td>
+                <td>
+                    {% if current_user.priv == 2 %}
+                        <a href="{{ url_for('delete_user', user_id=u.id) }}"><span class="fa fa-trash-alt"></span></a></td>
+                    {% else %}
+                        {% if current_user.priv > 0 %}
+                        <a href="{{ url_for('edit_user', username=u.username) }}"><span class="fa fa-edit"></span></a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    {% endfor %}
+    </table>
+    <a href="{{ url_for('add_user') }}" class="btn btn-green">Add User</a>
+{% endblock %}

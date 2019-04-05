@@ -45,7 +45,7 @@ class RegistrationForm(FlaskForm):
     # PERSONAL INFORMATION
     # NAME
     f_name = StringField('First Name', validators=[DataRequired()])
-    m_name = StringField('Middle Name', validators=[DataRequired()])
+    m_name = StringField('Middle Name', validators=[])
     l_name = StringField('Last Name', validators=[DataRequired()])
     # Other
     sin    = IntegerField("SIN/SSN", validators=[DataRequired()])
@@ -126,3 +126,39 @@ class AddHotelForm(FlaskForm):
     def validate_rating(self, rating):
         if rating.data < 0 or rating.data > 5:
             raise ValidationError("Invalid rating range!")
+
+
+class AddUserForm(FlaskForm):
+    # Login information
+    username = StringField('Username', validators=[DataRequired()])
+    password = StringField('Password', validators=[DataRequired()])
+    priv = IntegerField("Privilege", validators=[DataRequired()])
+    # PERSONAL INFORMATION
+    # NAME
+    f_name = StringField('First Name', validators=[DataRequired()])
+    m_name = StringField('Middle Name', validators=[])
+    l_name = StringField('Last Name', validators=[DataRequired()])
+    # Other
+    sin    = IntegerField("SIN/SSN", validators=[DataRequired()])
+
+
+    # CONTACT INFORMATION
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    
+    phone1 = StringField('Phone Number 1', validators=[DataRequired()])
+    phone2 = StringField('Phone Number 2')
+    phone3 = StringField('Phone Number 3')
+
+    # ADDRESS INFO
+    country = SelectField("Country", choices=[("us", "US"), ('CAD', "Canada")], validators=[DataRequired()])
+    state = StringField("State/Province", validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    street_num = IntegerField("Street Number", validators=[DataRequired()])
+    street = StringField("Street", validators=[DataRequired()])
+    zip = StringField('ZIP/Postal Code', validators=[DataRequired()])
+    
+    submit = SubmitField('Add User')
+
+    def validate_priv(self, priv):
+        if priv.data > 3 or priv.data < 0:
+            raise ValidationError("Invlid privilege level!")
