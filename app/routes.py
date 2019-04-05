@@ -422,3 +422,6 @@ def delete_room(room_id):
     Room.query.filter_by(id=room_id).delete()
     db.session.commit()
     return redirect(url_for('view_rooms'))
+
+@app.route("/browse_rooms")
+@login_required

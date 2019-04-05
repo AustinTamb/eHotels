@@ -1,14 +1,41 @@
+{% extends "base.html" %}
 {% block content %}
+    <form action="{{ url_for('browse_rooms') }}" method="POST">
+        {{ form.hidden-tag() }}
+        <p>
+            {{ form.from_date.label }}<br>
+            {{ form.from_date(class="form-control") }}<br>
+            {% for error in form.from_date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.to_date.label }}<br>
+            {{ form.to_date(class="form-control") }}<br>
+            {% for error in form.to_date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.city.label }}<br>
+            {{ form.city(class="form-control") }}<br>
+            {% for error in form.city.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.chain.label }}<br>
+            {{ form.chain(class="form-control") }}<br>
+            {% for error in form.chain.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+    </form>
+    <div class="container">
+        {% if result %}
+            {% for room in result %}
 
-    {% if room %}
-        <div class="card">
-            <img class="card-img-top" src="{{ url_for('static', filename=room.image) }}" alt="No Room Picture Found!">
-            <div class="card-body">
-                <h5 class="card-title">{{ room.capacity }} Person Room </h5>
-                <p class="card-text">{{ room.price }}$ / night<!-- TODO: GENERATE ROOM DESCRIPTION --></p>
-                <a href="{{ url_for('get_room_info', room_id = room.room_id) }}" class="btn btn-dark">Book Room</a>
-            </div>
-        </div>
-    {% endif %}
-
+            {% endfor %}
+        {% endif %}
+    </div>
 {% endblock %}

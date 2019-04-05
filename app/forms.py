@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, DateField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models import User, Hotel
 from app import db
@@ -208,3 +208,12 @@ class AddRoomForm(FlaskForm):
         h_id = hotel.data
         if Hotel.query.filter_by(id = h_id).first() is None:
             raise ValidationError("No Hotel with this ID exists.")
+
+
+class SearchRoomForm(FlaskForm):
+    from_date = DateField("From", validators=[])
+    to_date = DateField("To", validators=[])
+    city = StringField("City", validators=[])
+    chain = StringField("Hotel Chain Name", validators=[])
+
+    submit = SubmitField("Search")
