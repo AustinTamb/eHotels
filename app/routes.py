@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm
+from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm, AddRoomForm
 from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive
 from werkzeug.urls import url_parse
 import datetime
@@ -184,11 +184,6 @@ def fill_phone_form(form, phone):
 def view_users():
     users = User.query.all()
     return render_template("view_users.html", users = users)
-
-@app.route("/add_room/<chain_id>/<hotel_id>", methods = ["GET", "POST"])
-def add_room(chain, hotel):
-    chain = Chain.query.filter_by(id = chain).first_or_404()
-    hotel = Hotel.query.filter_by(id = hotel).first_or_404()
     
 @app.route("/view_chains")
 def view_chains():
@@ -326,7 +321,7 @@ def add_user():
         db.session.commit()
 
         flash('New User Added!')
-        return redirect(url_for('view_users.html'))
+        return redirect(url_for('view_users'))
     return render_template('add_user.html', title='Add User', form=form)
 
 @app.route("/edit_chain/<chain_id>", methods = ["GET", "POST"])
@@ -392,8 +387,38 @@ def delete_user(user_id):
     db.session.commit()
     return redirect(url_for("view_users"))
 
-
-@app.route("/cancel_booking/<int:booking_id>")
+@app.route("/add_room", methods = ["GET", "POST"])
 @login_required
-def cancel_booking(booking_id):
-    print(f"Request to cancel booking: {booking_id}")
+def add_room():
+    form = AddRoomForm()
+    if form.validate_on_submit():
+        hotel = Hotel.query.filter_by(id = form.hotel.data).first_or_404()
+        room = Room(
+            capacity = form.capacity.data,
+            price = form.price.data,
+            condition = form.condition.data,
+            view = form.view.data,
+            amenities = form.amenities.data,
+            extendable = form.extendable.data == "Yes",
+            hotel_id = form.hotel.data
+        )
+        db.session.add(room)
+        hotel.rooms_amt += 1
+        db.session.commit()
+
+        flash('New Room Added!')
+        return redirect(url_for('view_rooms'))
+    return render_template('add_type/room.html', title='Add Room', form=form)
+
+@app.route("/view_rooms")
+@login_required
+def view_rooms():
+    rooms = Room.query.all()
+    return render_template("view_rooms.html", rooms=rooms, title="View Rooms")
+
+@app.route("/delete_room/<room_id>")
+@login_required
+def delete_room(room_id):
+    Room.query.filter_by(id=room_id).delete()
+    db.session.commit()
+    return redirect(url_for('view_rooms'))

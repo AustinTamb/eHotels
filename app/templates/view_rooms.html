@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Capacity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Condition</th>
+                <th scope="col">View</th>
+                <th scope="col">Amenities</th>
+                <th scope="col">Extendable</th>
+                <th scope="col">Hotel ID</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+    {% for r in rooms %}
+        <tbody>
+            <tr>
+                <th scope="row">{{ r.id }}</th>
+                <td>{{ r.capacity }}</td>
+                <td>{{ r.price }}</td>
+                <td>{{ r.condition }}</td>
+                <td>{{ r.view }}</td>
+                <td>{{ r.amenities }}</td>
+                <td>{{ r.extendable }}</td>
+                <td>{{ r.hotel_id }}</td>
+                <td>
+                    {% if current_user.priv == 2 %}
+                        <a href="{{ url_for('delete_room', room_id=r.id) }}"><span class="fa fa-trash-alt"></span></a>
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    {% endfor %}
+    </table>
+    <a href="{{ url_for('add_room') }}" class="btn btn-green">Add Room</a>
+{% endblock %}

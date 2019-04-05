@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, RadioField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User
+from app.models import User, Hotel
+from app import db
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators = [DataRequired()])
@@ -190,4 +191,20 @@ class AddUserForm(FlaskForm):
 
     def validate_priv(self, priv):
         if priv.data > 3 or priv.data < 0:
-            raise ValidationError("Invlid privilege level!")
+            raise ValidationError("Invalid privilege level!")
+
+class AddRoomForm(FlaskForm):
+    capacity = IntegerField("Capacity", validators=[DataRequired()])
+    price = FloatField("Price", validators=[DataRequired()])
+    condition = StringField("Condition", validators=[DataRequired()])
+    view = StringField("View", validators=[DataRequired()])
+    amenities = StringField("Amenities", validators=[DataRequired()])
+    extendable = SelectField("Extendable", choices=[("Yes", "Yes"), ("No", "No")], validators=[DataRequired()])
+    hotel = IntegerField("Hotel ID", validators=[DataRequired()])
+
+    submit = SubmitField('Add Room')
+
+    def validate_hotel(self, hotel):
+        h_id = hotel.data
+        if Hotel.query.filter_by(id = h_id).first() is None:
+            raise ValidationError("No Hotel with this ID exists.")

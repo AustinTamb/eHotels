@@ -74,7 +74,6 @@ class Room(db.Model):
     view        = db.Column(db.String(256), nullable = False)
     amenities   = db.Column(db.String(256), nullable = False)
     extendable  = db.Column(db.Boolean, nullable = False)
-    image_url   = db.Column(db.String(256), nullable = False)
     hotel_id    = db.Column(db.Integer, db.ForeignKey('hotel.id'))
 
 
@@ -88,6 +87,11 @@ class Booking(db.Model):
     user        = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     archive     = db.relationship('Archive', backref = 'a_booking', lazy='dynamic')
+
+class Bookings(db.Model):
+    id          = db.Column(db.Integer, primary_key = True)
+    room        = db.Column(db.Integer, db.ForeignKey('room.id'))
+    date        = db.Column(db.Date, index = True)
 
 class Archive(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
