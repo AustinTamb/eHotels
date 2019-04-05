@@ -62,7 +62,6 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-
 @app.route("/book_room/<user_id>/<int:room_id>")
 @login_required
 def book_room(user_id, room_id):
@@ -85,7 +84,6 @@ def register():
             zip = form.zip.data
         )
         db.session.add(addr)
-
         
         phone = Phone(
             phone_1 = form.phone1.data,

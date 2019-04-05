@@ -13,7 +13,7 @@ class EditUserForm(FlaskForm):
     # PERSONAL INFORMATION
     # NAME
     f_name = StringField('First Name', validators=[DataRequired()])
-    m_name = StringField('Middle Name', validators=[DataRequired()])
+    m_name = StringField('Middle Name', validators=[])
     l_name = StringField('Last Name', validators=[DataRequired()])
     # Other
     sin    = IntegerField("SIN/SSN", validators=[DataRequired()])

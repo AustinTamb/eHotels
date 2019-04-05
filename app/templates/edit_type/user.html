@@ -2,7 +2,8 @@
 
 {% block content %}
     <h1>Edit Profile - {{ username }}</h1>
-    <form action="" method="post">
+    <form action="{{ url_for('edit_user', username = username) }}" method="post">
+        {{ form.hidden_tag() }}
         {% include "add_type/personal.html" %}
         {% include "add_type/address.html" %}
         {% include "add_type/contact.html" %}
