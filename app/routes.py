@@ -2,8 +2,9 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Addr, Phone
+from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive, Customer
 from werkzeug.urls import url_parse
+import datetime
 
 @app.route("/")
 @app.route("/index")
@@ -47,14 +48,11 @@ def book_room(room_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    print(current_user)
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
     form = RegistrationForm()
-    print(form)
     if form.validate_on_submit():
-        print("SUBMITTED")
 
         addr = Addr(
             country = form.country.data,
@@ -76,8 +74,6 @@ def register():
 
         addrs = addr.id
         phone_nums = phone.id
-        print(f"addrs: {addrs}")
-        print(f"phone_nums: {phone_nums}")
 
         user = User(
             username = form.username.data,
@@ -94,7 +90,34 @@ def register():
         db.session.commit()
 
         flash('Congratulations, you are now a registered user!')
-        ret = redirect(url_for('login'))
-        print(ret)
-        return ret
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route("/user/<username>")
+@app.route("/user/<username>/")
+def user(username):
+    user = User.query.filter_by(username = username).first_or_404()
+    customer = Customer.query.filter_by(user_id = user.id).first()
+    bookings = None
+    if customer is not None:
+        bookings = Booking.query.filter_by(customer = customer.id)
+        for b in bookings:
+            b.image = Room.query.filter_by(id = b.room).image_url
+    
+    return render_template(
+        'user.html', 
+        user = user, 
+        booking = bookings,
+        c_date = datetime.datetime.utcnow()
+    )
+
+@app.route("/update_profile/<user>")
+@app.route("/update_profile/<user>/")
+@login_required
+def update_profile(user):
+    pass
+
+@app.route("/cancel_booking/<int:booking_id>")
+@login_required
+def cancel_booking(booking_id):
+    print(f"Request to cancel booking: {booking_id}")

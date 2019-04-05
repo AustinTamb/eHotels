@@ -39,16 +39,8 @@ class Addr(db.Model):
     state       = db.Column(db.String(64), nullable = False)
     country     = db.Column(db.String(64), nullable = False)
 
-class Customer(db.Model):
-    id          = db.Column(db.Integer, primary_key = True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-class Employee(db.Model):
-    id          = db.Column(db.Integer, primary_key = True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
-    position    = db.Column(db.String(16), nullable = False)
-
-class HotelChain(db.Model):
+class Chain(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     name        = db.Column(db.String(64), nullable = False)
     hotels_owned = db.Column(db.Integer, nullable = False)
@@ -58,7 +50,17 @@ class HotelChain(db.Model):
     address     = db.Column(db.Integer, db.ForeignKey('addr.id'))
     phone       = db.Column(db.Integer, db.ForeignKey('phone.id'))
 
-    hotels      = db.relationship('Hotel', backref = 'hotelchain', lazy='dynamic')
+    hotels      = db.relationship('Hotel', backref = 'chain', lazy='dynamic')
+
+class Customer(db.Model):
+    id          = db.Column(db.Integer, primary_key = True)
+    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
+    bookings    = db.relationship('Booking', backref = 'cust', lazy='dynamic')
+
+class Employee(db.Model):
+    id          = db.Column(db.Integer, primary_key = True)
+    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
+    position    = db.Column(db.String(16), nullable = False)
 
 class Hotel(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
@@ -69,19 +71,20 @@ class Hotel(db.Model):
     address     = db.Column(db.Integer, db.ForeignKey('addr.id'))
     phone       = db.Column(db.Integer, db.ForeignKey('phone.id'))
     manager     = db.Column(db.Integer, db.ForeignKey('employee.id'))
-    owned_by    = db.Column(db.Integer, db.ForeignKey('hotelchain.id'))
+    owned_by    = db.Column(db.Integer, db.ForeignKey('chain.id'))
     
     rooms       = db.relationship("Room", backref = 'hotel', lazy='dynamic')
 
 class Room(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     capacity    = db.Column(db.Integer, nullable = False)
-    price       = db.Column(db.Numberic(), nullable = False)
+    price       = db.Column(db.Numeric(), nullable = False)
     condition   = db.Column(db.String(256), nullable = False)
     view        = db.Column(db.String(256), nullable = False)
     amenities   = db.Column(db.String(256), nullable = False)
-    extendable  = db.Column(db.Boolean, nullabe = False)
-    hotel       = db.Column(db.Integer, db.ForeignKey('hotel.id'))
+    extendable  = db.Column(db.Boolean, nullable = False)
+    image_url   = db.Column(db.String(256), nullable = False)
+    hotel_id    = db.Column(db.Integer, db.ForeignKey('hotel.id'))
 
 
 class Booking(db.Model):
@@ -97,7 +100,7 @@ class Booking(db.Model):
 
 class Archive(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
-    booking     = db.Column(db.Integer, db.ForeignKey('booking.id'))
+    booking_id  = db.Column(db.Integer, db.ForeignKey('booking.id'))
 
 
 @login.user_loader

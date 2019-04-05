@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+    {% if (current_user.id == user.id) %}
+        <button url="{{ url_for('update_profile', user=user) }}">Update Profile</btn>
+        {% include 'booking.html' %}
+    {% endif %}
+{% endblock %}
