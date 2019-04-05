@@ -24,9 +24,12 @@
                 <td>{{ c.rating }}</td>
                 <td>{{ c.address }}</td>
                 <td>{{ c.phone }}</td>
+                <td>
                 {% if current_user.priv == 2 %}
-                    <td><a href="{{ url_for('delete_chain', chain_id=c.id) }}"><span class="fa fa-trash-alt"></span></a></td>
+                    <a href="{{ url_for('delete_chain', chain_id=c.id) }}"><span class="fa fa-trash-alt"></span></a>
+                    <a href="{{ url_for('edit_chain', chain_id=c.id) }}"><span class="fa fa-edit"></span></a>
                 {% endif %}
+                </td>
             </tr>
         </tbody>
     {% endfor %}

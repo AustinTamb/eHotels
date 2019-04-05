@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm
+from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm
 from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive
 from werkzeug.urls import url_parse
 import datetime
@@ -105,7 +105,7 @@ def user(username):
         c_date = datetime.datetime.utcnow()
     )
 
-@app.route("/edit_user/<username>/", methods=["GET", "POST"])
+@app.route("/edit_user/<username>", methods=["GET", "POST"])
 @login_required
 def edit_user(username):
     if current_user.priv > 1 or current_user.username == username:
@@ -116,20 +116,11 @@ def edit_user(username):
         form = EditUserForm()
         if form.validate_on_submit():
             # Address
-            addr.country = form.country.data
-            addr.state = form.state.data
-            addr.city = form.city.data
-            addr.street_number = form.street_num.data
-            addr.street = form.street.data
-            addr.zip = form.zip.data
-            db.session.commit()
-
+            edit_addr(form, addr)
             # Phone
-            ph.phone_1 = form.phone1.data
-            ph.phone_2 = form.phone2.data
-            ph.phone_3 = form.phone3.data
-            db.session.commit()
-
+            edit_phone(form, ph)
+            
+            # User Info
             user.first_name = form.f_name.data
             user.middle_name = form.m_name.data
             user.last_name = form.l_name.data
@@ -145,20 +136,48 @@ def edit_user(username):
             form.l_name.data = user.last_name
             form.email.data = user.email,
             form.sin.data = user.sin
+
             # Address
-            form.country.data = addr.country
-            form.state.data = addr.state
-            form.city.data = addr.city
-            form.street_num.data = addr.street_number
-            form.street.data = addr.street
-            form.zip.data = addr.zip
-            # Contact
-            form.phone1.data = ph.phone_1
-            form.phone2.data = ph.phone_2
-            form.phone3.data = ph.phone_3
+            fill_addr_form(form, addr)
+            # Phone
+            fill_phone_form(form, ph)
+
         return render_template("/edit_type/user.html", title="Edit User", form=form, username=username)
     else:
         return redirect(url_for('user', username = username))
+
+def edit_addr(form, addr):
+    # Address
+    addr.country = form.country.data
+    addr.state = form.state.data
+    addr.city = form.city.data
+    addr.street_number = form.street_num.data
+    addr.street = form.street.data
+    addr.zip = form.zip.data
+    db.session.commit()
+    return addr.id
+
+def fill_addr_form(form, addr):
+    # Address
+    form.country.data = addr.country
+    form.state.data = addr.state
+    form.city.data = addr.city
+    form.street_num.data = addr.street_number
+    form.street.data = addr.street
+    form.zip.data = addr.zip
+
+def edit_phone(form, phone):
+    # Phone
+    phone.phone_1 = form.phone1.data
+    phone.phone_2 = form.phone2.data
+    phone.phone_3 = form.phone3.data
+    db.session.commit()
+
+def fill_phone_form(form, phone):
+    # Contact
+    form.phone1.data = phone.phone_1
+    form.phone2.data = phone.phone_2
+    form.phone3.data = phone.phone_3
 
 @app.route("/view_users")
 @login_required
@@ -310,6 +329,48 @@ def add_user():
         return redirect(url_for('view_users.html'))
     return render_template('add_user.html', title='Add User', form=form)
 
+@app.route("/edit_chain/<chain_id>", methods = ["GET", "POST"])
+@login_required
+def edit_chain(chain_id):
+    chains = Chain.query.all()
+    if current_user.priv > 1:
+        chain = Chain.query.filter_by(id = chain_id).first_or_404()
+        addr = Addr.query.filter_by(id = chain.address).first_or_404()
+        ph = Phone.query.filter_by(id = chain.phone).first_or_404()
+        
+        form = EditChainForm()
+        print(form.errors)
+        if form.validate_on_submit():
+            print("EDIT")
+            # Address
+            edit_addr(form, addr)
+            # Phone
+            edit_phone(form, ph)
+            
+            # User Info
+            chain.name = form.name.data
+            chain.hotels_owned = form.hotels_owned.data
+            chain.rating = form.rating.data
+            chain.email = form.email.data
+            db.session.commit()
+
+            flash("Modifications have been saved!")
+            return redirect(url_for('view_chains'))
+        elif request.method == "GET":
+            form.name.data = chain.name
+            form.hotels_owned.data = chain.hotels_owned
+            form.rating.data = chain.rating
+            form.email.data = chain.email
+
+            # Address
+            fill_addr_form(form, addr)
+            # Phone
+            fill_phone_form(form, ph)
+
+        return render_template("add_chain.html", title="Edit Chain", form=form, chain_id = chain_id)
+    else:
+        return redirect(url_for('view_chains'))
+
 @app.route("/delete_chain/<chain_id>")
 @login_required
 def delete_chain(chain_id):
@@ -329,7 +390,7 @@ def delete_hotel(chain_id):
 def delete_user(user_id):
     User.query.filter_by(id=user_id).delete()
     db.session.commit()
-    return redirect(url_for("view_chains"))
+    return redirect(url_for("view_users"))
 
 
 @app.route("/cancel_booking/<int:booking_id>")
