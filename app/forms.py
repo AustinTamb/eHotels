@@ -221,7 +221,14 @@ class AddRoomForm(FlaskForm):
 class SearchRoomForm(FlaskForm):
     from_date = DateField("From", validators=[DataRequired()])
     to_date = DateField("To", validators=[DataRequired()])
-    city = StringField("City", validators=[])
+    city_opt = db.session.execute("SELECT Addr.city FROM Hotel, Addr WHERE Hotel.address = Addr.id").fetchall()
+    cities = set()
+    cities.add(("Any", "Any"))
+    for c in city_opt:
+        cities.add((c[0], c[0]))
+    del city_opt
+    print(cities)
+    city = SelectField("City", choices=cities, validators=[], default=("Any", "Any"))
 
     chains = Chain.query.all()
     chain_names = [(-1, "Any")]

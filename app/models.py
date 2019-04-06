@@ -40,6 +40,9 @@ class Addr(db.Model):
     state       = db.Column(db.String(64), nullable = False)
     country     = db.Column(db.String(64), nullable = False)
 
+    def __repr__(self):
+        return f"{self.street_number} {self.street}, {self.city}, {self.state}, {self.country}, {self.zip}"
+
 
 class Chain(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
@@ -80,22 +83,25 @@ class Room(db.Model):
 class Booking(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     checked_in  = db.Column(db.Boolean, nullable = False)
-    from_date   = db.Column(db.Date, unique = True)
-    to_date     = db.Column(db.Date, unique = True)
+    from_date   = db.Column(db.Date, nullable = False)
+    to_date     = db.Column(db.Date, nullable = False)
 
     room        = db.Column(db.Integer, db.ForeignKey('room.id'))
     user        = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    archive     = db.relationship('Archive', backref = 'a_booking', lazy='dynamic')
-
 class Bookings(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     room        = db.Column(db.Integer, db.ForeignKey('room.id'))
-    date        = db.Column(db.Date, index = True)
+    date        = db.Column(db.Date, nullable = False)
 
 class Archive(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
-    book_id     = db.Column(db.Integer, db.ForeignKey('booking.id'))
+    checked_in  = db.Column(db.Boolean, nullable = False)
+    from_date   = db.Column(db.Date, nullable = False)
+    to_date     = db.Column(db.Date, nullable = False)
+
+    room        = db.Column(db.Integer, db.ForeignKey('room.id'))
+    user        = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
 @login.user_loader

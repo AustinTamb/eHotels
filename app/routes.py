@@ -2,9 +2,10 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm, AddRoomForm, SearchRoomForm
-from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive
+from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive, Bookings
 from werkzeug.urls import url_parse
 import datetime
+import time
 
 @app.route("/")
 @app.route("/index")
@@ -96,11 +97,12 @@ def user(username):
     if bookings is None:
         bookings = {}
 
+    
     return render_template(
         'user.html', 
         user = user, 
         booking = bookings,
-        c_date = datetime.datetime.utcnow()
+        c_date = datetime.date.today()
     )
 
 @app.route("/edit_user/<username>", methods=["GET", "POST"])
@@ -426,18 +428,102 @@ def delete_room(room_id):
 def browse_rooms():
     form = SearchRoomForm()
     if request.method == "POST":
-        rooms = []
-        if (form.chain.data != -1):
-            f_rooms = db.session.execute(
-                "SELECT Room.id FROM Room, Hotel WHERE Room.hotel_id = Hotel.id AND Hotel.owned_by=:param", 
-                {"param":form.chain.data}
-            ).fetchall()
+        # Get dates
+        start = datetime.datetime.strptime(str(form.from_date.data), "%Y-%m-%d")
+        end = datetime.datetime.strptime(str(form.to_date.data), "%Y-%m-%d")
+        # Get all rooms not booked between date range
+        q = (
+            db.session.query(Room, Bookings, Addr, Chain, Hotel)
+            .filter(Room.id == Bookings.id)
+            .filter(Bookings.date < start)
+            .filter(Bookings.date > end)
+        )
+        del start
+        del end
 
-            rooms = [Room.query.get(i) for i in f_rooms]
-        if (form.chain.data == -1):
-            rooms = Room.query.all()
+        city = str(form.city.data)
+        if city != "Any":
+            q = (q.filter(Hotel.id == Room.hotel_id)
+                .filter(Hotel.address == Addr.id)
+                .filter(Addr.city == city)
+            )
+        del city
 
+        hotel_chain = int(form.chain.data)
+        if hotel_chain != -1:
+            q = (q.filter(Hotel.owned_by == hotel_chain))
+        del hotel_chain
+
+        print(q)        
+        rooms = q.all()
+        print(rooms)
         return render_template("browse_rooms.html", form=form, result = rooms)
     elif request.method == "GET":
         pass
     return render_template("browse_rooms.html", form=form)
+
+
+@app.route("/book_room/<room_id>/<from_date>/<to_date>")
+@login_required
+def book_room(room_id, from_date, to_date):
+    start = datetime.datetime.strptime(from_date, "%Y-%m-%d")
+    end = datetime.datetime.strptime(to_date, "%Y-%m-%d")
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+
+    booking = Booking(
+        checked_in = False,
+        from_date = start,
+        to_date = end,
+        room = room_id,
+        user = current_user.id
+    )
+    db.session.add(booking)
+
+    for date in date_generated:
+        tmp_booking = Bookings(
+            room = room_id,
+            date = date
+        )
+        db.session.add(tmp_booking)
+    
+    db.session.commit()
+    form = SearchRoomForm()
+    return render_template("browse_rooms.html", form=form)
+
+@app.route("/cancel_booking/<booking_id>")
+@login_required
+def cancel_booking(booking_id):
+    print(f"Delete requested for booking: {booking_id}")
+    # Get the Booking
+    booking = Booking.query.get(booking_id)
+    # Create the archive
+    arch = Archive(
+        checked_in = booking.checked_in,
+        from_date = booking.from_date,
+        to_date = booking.to_date,
+        room= booking.room,
+        user = booking.user
+    )
+
+    # Get the range of the dates reserved for that booking
+    start = datetime.datetime.strptime(arch.from_date, "%Y-%m-%d")
+    end = datetime.datetime.strptime(arch.to_date, "%Y-%m-%d")
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+
+    for date in date_generated:
+        # Delete all the bookings
+        Bookings.query.filter_by(
+            room = booking.room,
+            date = date
+        ).delete()
+
+    # Delete the booking
+    booking.delete()
+    # Add the archive to db
+    db.session.add(arch)
+    # Commit all changes from above
+    db.session.commit()
+    # Get the user
+    user = User.query.get(arch.user)
+    # RE-generate user page
+    return redirect(url_for('user', username = user.username))

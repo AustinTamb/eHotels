@@ -1,17 +1,19 @@
 {% block content %}
     {% for b in booking %}
-        <div class="card">
-            <img class="card-img-top" src = "{{ url_for('static', filename=b.image) }}" alt="No picture available.">
-            <div class="card-body">
-                <h5>Room booking for: </h5>
-                <p class="card-text">
-                    {{ b.from_date }} - {{ b.to_date }}
-                </p>
-                {% if c_date %}
-                    {% if c_date > b.from_date %}
-                        <a href='{{ url_for("cancel_booking", booking_id = b.id) }}'>Cancel Booking</a>
+        <div>
+            <div class="card">
+                <div class="card-body">
+                    <h5>Room booking for: </h5>
+                    <p class="card-text">
+                        {{ b.from_date }} - {{ b.to_date }}
+                    </p>
+                    {% if c_date %}
+                        {% if b.from_date >= c_date %}
+                            
+                            <a href='{{ url_for("cancel_booking", booking_id = b.id) }}'><span class="fa fa-trash-alt"></span> Cancel Booking</a>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
+                </div>
             </div>
         </div>
     {% endfor %}

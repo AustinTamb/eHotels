@@ -4,6 +4,7 @@
         <div class="card-body">
             <h5 class="card-title">{{ room.capacity }} Person Room </h5>
             <p class="card-text">{{ room.price }}$ / night<!-- TODO: GENERATE ROOM DESCRIPTION --></p>
+            <a class="btn btn-dark" href="{{ url_for('book_room', room_id = room.id, from_date = form.from_date.data, to_date = form.to_date.data) }}">Book Room</a> 
         </div>
     </div>
 {% endif %}

@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
-    {% if (current_user.id == user.id) %}
-        <a class="btn btn-dark" href="{{ url_for('edit_user', username=user.username) }}">Update Profile</a>
-        {% include 'booking.html' %}
-    {% endif %}
+    <div class="container">
+    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        {% if (current_user.id == user.id) %}
+            <a class="btn btn-dark" href="{{ url_for('edit_user', username=user.username) }}">Update Profile</a>
+            <br>
+            {% include 'booking.html' %}
+        {% endif %}
+    </div>
 {% endblock %}

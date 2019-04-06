@@ -33,7 +33,7 @@
                 </p>
                 <p class="px-3">
                     {{ form.city.label }}<br>
-                    {{ form.city(size=12, class="form-control") }}<br>
+                    {{ form.city(class="form-control") }}<br>
                     {% for error in form.city.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
