@@ -72,7 +72,7 @@ class Hotel(db.Model):
 class Room(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     capacity    = db.Column(db.Integer, nullable = False)
-    price       = db.Column(db.Numeric(precision=2), nullable = False)
+    price       = db.Column(db.Integer, nullable = False)
     condition   = db.Column(db.String(256), nullable = False)
     view        = db.Column(db.String(256), nullable = False)
     amenities   = db.Column(db.String(256), nullable = False)
@@ -89,7 +89,7 @@ class Booking(db.Model):
     room        = db.Column(db.Integer, db.ForeignKey('room.id'))
     user        = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-class Bookings(db.Model):
+class BookingSlot(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     room        = db.Column(db.Integer, db.ForeignKey('room.id'))
     date        = db.Column(db.Date, nullable = False)

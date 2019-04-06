@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, DateField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User, Hotel, Chain, Addr
+from app.models import User, Hotel, Chain, Addr, Room
 from app import db
 
 class LoginForm(FlaskForm):
@@ -155,7 +155,7 @@ class AddHotelForm(FlaskForm):
     street = StringField("Street", validators=[DataRequired()])
     zip = StringField('ZIP/Postal Code', validators=[DataRequired()])
 
-    submit = SubmitField('Add Hotel Chain')
+    submit = SubmitField('Add Hotel')
 
     def validate_hotels_owned(self, hotels_owned):
         if hotels_owned.data < 0:
@@ -227,13 +227,76 @@ class SearchRoomForm(FlaskForm):
     for c in city_opt:
         cities.add((c[0], c[0]))
     del city_opt
-    print(cities)
-    city = SelectField("City", choices=cities, validators=[], default=("Any", "Any"))
+    city = SelectField("City", choices=cities, validators=[])
 
     chains = Chain.query.all()
-    chain_names = [(-1, "Any")]
+    chain_names = [('0', "Any")]
     for c in chains:
-        chain_names.append((c.id, c.name))
-    chain = SelectField("Hotel Chain Name", choices=chain_names, validators=[], default=(-1, "Any"))
+        chain_names.append((str(c.id), c.name))
+    chain = SelectField("Hotel Chain Name", choices=chain_names, validators=[])
+
+    ratings = [("0", "Any")]
+    for i in range(1, 6):
+        ratings.append(
+            (str(i), str(i) + " stars")
+        )
+    rating = SelectField("Category", choices=ratings)
+
+    size_c = [(0, "Any")]
+    for c in range(1,6):
+        size_c.append((c, c))
+    capacity = SelectField("Room Capacity", choices=size_c)
 
     submit = SubmitField('Search')
+
+
+class EditHotelForm(FlaskForm):
+    rooms_amt = IntegerField("Rooms Owned", validators=[DataRequired()])
+    rating = IntegerField("Rating", validators=[DataRequired()])
+    # CONTACT INFORMATION
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    manager = IntegerField("Manager ID", validators=[DataRequired()])
+    owned_by = IntegerField("Hotel Chain ID", validators=[DataRequired()])
+
+    phone1 = StringField('Phone Number 1', validators=[DataRequired()])
+    phone2 = StringField('Phone Number 2')
+    phone3 = StringField('Phone Number 3')
+
+    # ADDRESS INFO
+    country = SelectField("Country", choices=[("us", "US"), ('CAD', "Canada")], validators=[DataRequired()])
+    state = StringField("State/Province", validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    street_num = IntegerField("Street Number", validators=[DataRequired()])
+    street = StringField("Street", validators=[DataRequired()])
+    zip = StringField('ZIP/Postal Code', validators=[DataRequired()])
+
+    submit = SubmitField('Update Hotel')
+
+    def validate_hotels_owned(self, hotels_owned):
+        if hotels_owned.data < 0:
+            raise ValidationError("A Chain cannot own less than 0 Hotels.")
+
+    def validate_rating(self, rating):
+        if rating.data < 0 or rating.data > 5:
+            raise ValidationError("Invalid rating range!")
+
+    def validate_manager(self, manager):
+        if User.query.get(int(manager.data)).first() == []:
+            raise ValidationError("Manager does not exist!")
+
+
+class EditRoomForm(FlaskForm):
+    capacity = IntegerField("Capacity", validators=[DataRequired()])
+    price = FloatField("Price", validators=[DataRequired()])
+    condition = StringField("Condition", validators=[DataRequired()])
+    view = StringField("View", validators=[DataRequired()])
+    amenities = StringField("Amenities", validators=[DataRequired()])
+    extendable = SelectField("Extendable", choices=[("Yes", "Yes"), ("No", "No")], validators=[DataRequired()])
+    hotel = IntegerField("Hotel ID", validators=[DataRequired()])
+
+    submit = SubmitField('Update Room')
+
+    def validate_hotel(self, hotel):
+        h_id = hotel.data
+        if Hotel.query.filter_by(id = h_id).first() is None:
+            raise ValidationError("No Hotel with this ID exists.")

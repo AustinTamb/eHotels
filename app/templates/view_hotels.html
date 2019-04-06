@@ -28,7 +28,8 @@
                 <td>{{ h.owned_by }}</td>
                 <td>
                     {% if current_user.priv == 2 %}
-                        <a href="{{ url_for('delete_hotel', hotel_id=h.id) }}"><span class="fa fa-trash-alt"></span></a></td>
+                        <a href="{{ url_for('delete_hotel', hotel_id=h.id) }}"><span class="fa fa-trash-alt"></span></a>
+                        <a href="{{ url_for('edit_hotel', hotel_id=h.id) }}"><span class="fa fa-edit"></span></a>
                     {% endif %}
                 </td>
             </tr>

@@ -3,59 +3,61 @@
 {% block content %}
     {% if form %}
     <div class="container">
-        <form action="{{ url_for('add_room') }}" method="post">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.capacity.label }}<br>
-                {{ form.capacity(size=20, class="form-control") }}<br>
-                {% for error in form.capacity.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.price.label }}<br>
-                {{ form.price(size=20, class="form-control") }}<br>
-                {% for error in form.price.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.condition.label }}<br>
-                {{ form.condition(size=20, class="form-control") }}<br>
-                {% for error in form.condition.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.view.label }}<br>
-                {{ form.view(size=20, class="form-control") }}<br>
-                {% for error in form.view.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.amenities.label }}<br>
-                {{ form.amenities(size=20, class="form-control") }}<br>
-                {% for error in form.amenities.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.extendable.label }}<br>
-                {{ form.extendable(class="form-control") }}<br>
-                {% for error in form.extendable.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.hotel.label }}<br>
-                {{ form.hotel(size=20, class="form-control") }}<br>
-                {% for error in form.hotel.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>{{ form.submit(class="btn btn-dark") }}</p>
-        </div>
-    </form>
+        <form action="" method="post">
+            <div class="container">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.capacity.label }}<br>
+                    {{ form.capacity(size=20, class="form-control") }}<br>
+                    {% for error in form.capacity.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.price.label }}<br>
+                    {{ form.price(size=20, class="form-control") }}<br>
+                    {% for error in form.price.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.condition.label }}<br>
+                    {{ form.condition(size=20, class="form-control") }}<br>
+                    {% for error in form.condition.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.view.label }}<br>
+                    {{ form.view(size=20, class="form-control") }}<br>
+                    {% for error in form.view.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.amenities.label }}<br>
+                    {{ form.amenities(size=20, class="form-control") }}<br>
+                    {% for error in form.amenities.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.extendable.label }}<br>
+                    {{ form.extendable(class="form-control") }}<br>
+                    {% for error in form.extendable.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.hotel.label }}<br>
+                    {{ form.hotel(size=20, class="form-control") }}<br>
+                    {% for error in form.hotel.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>{{ form.submit(class="btn btn-dark") }}</p>
+            </div>
+        </form>
+    </div>
     {% endif %}
 {% endblock %}

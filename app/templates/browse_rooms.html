@@ -4,7 +4,7 @@
     <div class="container">
         <h1 class="text-center">Search for Room</h1>
         <p>In order to search for a room, you must at least enter a from date and to date. With this, it is possible to only display available rooms. You may also decide to select to only search for a specific Hotel Chain. In addition, you can further narrow the results by typing in a city.</p>
-        <p>Once the results show up, all you need to do is click on the <button class="btn btn-dark">Book Room</button> button to create a booking for the room. You have the option to pay for the room, or an employee at the hotel will take care of this when you check in for the room. To cancel a booking, you may either click on the <span class='fa fa-trash-alt'></span> icon, or, go to your Profile where your booking history will be displayed with the same icon available.</a></p>
+        <p>Once the results show up, all you need to do is click on the <button class="btn btn-dark">Book Room</button> button to create a booking for the room. You have the option to pay for the room, or an employee at the hotel will take care of this when you check in for the room. To cancel a booking, you may go to your profile where all your upcoming bookings will be displayed, and click on the <span class='fa fa-trash-alt'></span> icon.</a></p>
         <br>
         <div class="d-flex justify-content-center">
         <form action="{{ url_for('browse_rooms') }}" method="POST">
@@ -35,6 +35,20 @@
                     {{ form.city.label }}<br>
                     {{ form.city(class="form-control") }}<br>
                     {% for error in form.city.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.rating.label }}<br>
+                    {{ form.rating(class="form-control") }}<br>
+                    {% for error in form.rating.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="px-3">
+                    {{ form.capacity.label }}<br>
+                    {{ form.capacity(class="form-control") }}<br>
+                    {% for error in form.capacity.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>

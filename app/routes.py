@@ -1,8 +1,8 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm, AddRoomForm, SearchRoomForm
-from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive, Bookings
+from app.forms import *
+from app.models import *
 from werkzeug.urls import url_parse
 import datetime
 import time
@@ -92,16 +92,16 @@ def register():
 @login_required
 def user(username):
     user = User.query.filter_by(username = username).first_or_404()
-    bookings = Booking.query.filter_by(user = user.id)
+    booking_slots = Booking.query.filter_by(user = user.id)
     
-    if bookings is None:
-        bookings = {}
-
+    if booking_slots is None:
+        booking_slots = {}
+    
     
     return render_template(
         'user.html', 
-        user = user, 
-        booking = bookings,
+        user = user,
+        booking = booking_slots,
         c_date = datetime.date.today()
     )
 
@@ -327,16 +327,13 @@ def add_user():
 @app.route("/edit_chain/<chain_id>", methods = ["GET", "POST"])
 @login_required
 def edit_chain(chain_id):
-    chains = Chain.query.all()
     if current_user.priv > 1:
         chain = Chain.query.get(chain_id)
         addr = Addr.query.get(chain.address)
         ph = Phone.query.get(chain.phone)
         
         form = EditChainForm()
-        print(form.errors)
         if form.validate_on_submit():
-            print("EDIT")
             # Address
             edit_addr(form, addr)
             # Phone
@@ -366,24 +363,99 @@ def edit_chain(chain_id):
     else:
         return redirect(url_for('view_chains'))
 
+@app.route("/edit_hotel/<hotel_id>", methods = ["GET", "POST"])
+@login_required
+def edit_hotel(hotel_id):
+    if current_user.priv > 1:
+        hotel = Hotel.query.get(hotel_id)
+        addr = Addr.query.get(hotel.address)
+        ph = Phone.query.get(hotel.phone)
+        
+        form = EditHotelForm()
+        if form.validate_on_submit():
+            # Address
+            edit_addr(form, addr)
+            # Phone
+            edit_phone(form, ph)
+            
+            # User Info
+            hotel.rooms_amt = form.rooms_amt.data
+            chain.manager = form.manager.data
+            chain.rating = form.rating.data
+            chain.email = form.email.data
+            chain.owned_by = form.owned_by.data
+            db.session.commit()
+
+            flash("Modifications have been saved!")
+            return redirect(url_for('view_hotels'))
+        elif request.method == "GET":
+            form.rooms_amt.data = hotel.rooms_amt
+            form.manager.data = hotel.manager
+            form.rating.data = hotel.rating
+            form.email.data = hotel.email
+            form.owned_by.data = hotel.owned_by
+
+            # Address
+            fill_addr_form(form, addr)
+            # Phone
+            fill_phone_form(form, ph)
+
+        return render_template("add_hotel.html", title="Edit Hotel", form=form, hotel_id = hotel_id)
+    else:
+        return redirect(url_for('view_hotels'))
+
+@app.route("/edit_room/<room_id>", methods = ["GET", "POST"])
+@login_required
+def edit_room(room_id):
+    if current_user.priv > 1:
+        room = Room.query.get(room_id)
+        
+        form = EditRoomForm()
+        if form.validate_on_submit():
+            
+            # User Info
+            room.capacity = form.capacity.data
+            room.price = 100 * form.price.data
+            room.condition = form.condition.data
+            room.view = form.view.data
+            room.amenities = form.amenities.data
+            room.extendable = form.extendable.data == "Yes"
+            room.hotel_id = form.hotel.data
+            db.session.commit()
+
+            flash("Modifications have been saved!")
+            return redirect(url_for('view_rooms'))
+        elif request.method == "GET":
+            form.capacity.data = room.capacity
+            form.price.data = int(room.price) / 100.00
+            form.condition.data = room.condition
+            form.view.data = room.view
+            form.amenities.data = room.amenities
+            form.extendable.data = "Yes" if room.extendable else "No"
+            form.hotel.data = room.hotel_id
+
+        return render_template("add_type/room.html", title="Edit Room", form=form, room_id = room_id)
+    else:
+        return redirect(url_for('view_rooms'))
+
 @app.route("/delete_chain/<chain_id>")
 @login_required
 def delete_chain(chain_id):
-    Chain.query.get(chain_id).delete()
+    db.session.delete(Chain.query.get(chain_id))
     db.session.commit()
     return redirect(url_for("view_chains"))
 
 @app.route("/delete_hotel/<hotel_id>")
 @login_required
 def delete_hotel(chain_id):
-    Chain.query.get(chain_id).delete()
+    db.session.delete(Chain.query.get(chain_id))
     db.session.commit()
     return redirect(url_for("view_chains"))
 
 @app.route("/delete_user/<user_id>")
 @login_required
 def delete_user(user_id):
-    User.query.get(user_id).delete()
+    db.session.delete(User.query.get(user_id))
     db.session.commit()
     return redirect(url_for("view_users"))
 
@@ -395,7 +467,7 @@ def add_room():
         hotel = Hotel.query.get(form.hotel.data)
         room = Room(
             capacity = form.capacity.data,
-            price = form.price.data,
+            price = int(form.price.data * 100),
             condition = form.condition.data,
             view = form.view.data,
             amenities = form.amenities.data,
@@ -419,7 +491,7 @@ def view_rooms():
 @app.route("/delete_room/<room_id>")
 @login_required
 def delete_room(room_id):
-    Room.query.get(room_id).delete()
+    db.session.delete(Room.query.get(room_id))
     db.session.commit()
     return redirect(url_for('view_rooms'))
 
@@ -427,39 +499,38 @@ def delete_room(room_id):
 @login_required
 def browse_rooms():
     form = SearchRoomForm()
-    if request.method == "POST":
+    if form.validate_on_submit():
         # Get dates
-        start = datetime.datetime.strptime(str(form.from_date.data), "%Y-%m-%d")
-        end = datetime.datetime.strptime(str(form.to_date.data), "%Y-%m-%d")
         # Get all rooms not booked between date range
-        q = (
-            db.session.query(Room, Bookings, Addr, Chain, Hotel)
-            .filter(Room.id == Bookings.id)
-            .filter(Bookings.date < start)
-            .filter(Bookings.date > end)
-        )
-        del start
-        del end
+        q = db.session.query(Room, Addr, Chain, Hotel)
 
         city = str(form.city.data)
         if city != "Any":
-            q = (q.filter(Hotel.id == Room.hotel_id)
-                .filter(Hotel.address == Addr.id)
-                .filter(Addr.city == city)
-            )
-        del city
+            q = q.filter(Hotel.id == Room.hotel_id, Hotel.address == Addr.id).filter(Addr.city == city)
 
         hotel_chain = int(form.chain.data)
-        if hotel_chain != -1:
-            q = (q.filter(Hotel.owned_by == hotel_chain))
-        del hotel_chain
+        if hotel_chain != 0:
+            q = q.filter(Hotel.owned_by == hotel_chain)
 
-        print(q)        
-        rooms = q.all()
-        print(rooms)
+        rating = int(form.rating.data)
+        if rating != 0:
+            q = q.filter(Hotel.rating == rating)
+
+        capacity = int(form.capacity.data)
+        if capacity != 0:
+            q = q.filter(Room.capacity == capacity)
+
+        # Get the rooms object
+        rooms = set([r[0] for r in q.all()])
+        if BookingSlot.query.all() != []:
+            c = db.session.query(Room, BookingSlot)\
+            .filter(Room.id == BookingSlot.room)\
+            .filter(BookingSlot.date.between(form.from_date.data, form.to_date.data))
+            c = set([r[0] for r in c.all()])
+            # Remove already booked rooms
+            rooms = rooms - c
+
         return render_template("browse_rooms.html", form=form, result = rooms)
-    elif request.method == "GET":
-        pass
     return render_template("browse_rooms.html", form=form)
 
 
@@ -480,7 +551,7 @@ def book_room(room_id, from_date, to_date):
     db.session.add(booking)
 
     for date in date_generated:
-        tmp_booking = Bookings(
+        tmp_booking = BookingSlot(
             room = room_id,
             date = date
         )
@@ -493,7 +564,6 @@ def book_room(room_id, from_date, to_date):
 @app.route("/cancel_booking/<booking_id>")
 @login_required
 def cancel_booking(booking_id):
-    print(f"Delete requested for booking: {booking_id}")
     # Get the Booking
     booking = Booking.query.get(booking_id)
     # Create the archive
@@ -506,19 +576,19 @@ def cancel_booking(booking_id):
     )
 
     # Get the range of the dates reserved for that booking
-    start = datetime.datetime.strptime(arch.from_date, "%Y-%m-%d")
-    end = datetime.datetime.strptime(arch.to_date, "%Y-%m-%d")
+    start = arch.from_date
+    end = arch.to_date
     date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
 
     for date in date_generated:
-        # Delete all the bookings
-        Bookings.query.filter_by(
+        # Delete all the BookingSlot
+        BookingSlot.query.filter_by(
             room = booking.room,
             date = date
         ).delete()
 
     # Delete the booking
-    booking.delete()
+    db.session.delete(booking)
     # Add the archive to db
     db.session.add(arch)
     # Commit all changes from above
@@ -527,3 +597,9 @@ def cancel_booking(booking_id):
     user = User.query.get(arch.user)
     # RE-generate user page
     return redirect(url_for('user', username = user.username))
+
+
+@app.route("/browse_bookings", methods = ["GET", "POST"])
+@login_required
+def browse_bookings():
+    return render_template("browse_bookings.html")

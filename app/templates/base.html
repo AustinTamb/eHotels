@@ -22,20 +22,27 @@
                 </li>
                 
                 {% if current_user %}
-                    {% if current_user.is_authenticated and current_user.priv > 1 %}
-                        <!-- Admin-->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('view_chains') }}"> View Hotel Chains</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('view_hotels') }}"> View Hotels</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('view_users') }}"> View Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('view_rooms') }}"> View Rooms</a>
-                        </li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.priv > 0 %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('browse_bookings') }}"><span class="fa fa-search"></span> Browse Bookings</a>
+                            </li>
+                        {% endif %}
+                        {% if current_user.priv > 1 %}
+                            <!-- Admin-->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('view_chains') }}"> View Hotel Chains</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('view_hotels') }}"> View Hotels</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('view_users') }}"> View Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('view_rooms') }}"> View Rooms</a>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </ul>
