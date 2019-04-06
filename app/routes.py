@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm, AddRoomForm
+from app.forms import LoginForm, RegistrationForm, EditUserForm, AddChainForm, AddHotelForm, AddUserForm, EditChainForm, AddRoomForm, SearchRoomForm
 from app.models import User, Addr, Phone, Chain, Hotel, Room, Booking, Archive
 from werkzeug.urls import url_parse
 import datetime
@@ -92,8 +92,6 @@ def register():
 def user(username):
     user = User.query.filter_by(username = username).first_or_404()
     bookings = Booking.query.filter_by(user = user.id)
-    for b in bookings:
-        b.image = Room.query.filter_by(id = b.room).image_url
     
     if bookings is None:
         bookings = {}
@@ -110,8 +108,8 @@ def user(username):
 def edit_user(username):
     if current_user.priv > 1 or current_user.username == username:
         user = User.query.filter_by(username = username).first_or_404()
-        addr = Addr.query.filter_by(id = user.address).first_or_404()
-        ph = Phone.query.filter_by(id = user.phone).first_or_404()
+        addr = Addr.query.get(user.address)
+        ph = Phone.query.get(user.phone)
         
         form = EditUserForm()
         if form.validate_on_submit():
@@ -329,9 +327,9 @@ def add_user():
 def edit_chain(chain_id):
     chains = Chain.query.all()
     if current_user.priv > 1:
-        chain = Chain.query.filter_by(id = chain_id).first_or_404()
-        addr = Addr.query.filter_by(id = chain.address).first_or_404()
-        ph = Phone.query.filter_by(id = chain.phone).first_or_404()
+        chain = Chain.query.get(chain_id)
+        addr = Addr.query.get(chain.address)
+        ph = Phone.query.get(chain.phone)
         
         form = EditChainForm()
         print(form.errors)
@@ -369,21 +367,21 @@ def edit_chain(chain_id):
 @app.route("/delete_chain/<chain_id>")
 @login_required
 def delete_chain(chain_id):
-    Chain.query.filter_by(id=chain_id).delete()
+    Chain.query.get(chain_id).delete()
     db.session.commit()
     return redirect(url_for("view_chains"))
 
 @app.route("/delete_hotel/<hotel_id>")
 @login_required
 def delete_hotel(chain_id):
-    Chain.query.filter_by(id=chain_id).delete()
+    Chain.query.get(chain_id).delete()
     db.session.commit()
     return redirect(url_for("view_chains"))
 
 @app.route("/delete_user/<user_id>")
 @login_required
 def delete_user(user_id):
-    User.query.filter_by(id=user_id).delete()
+    User.query.get(user_id).delete()
     db.session.commit()
     return redirect(url_for("view_users"))
 
@@ -392,7 +390,7 @@ def delete_user(user_id):
 def add_room():
     form = AddRoomForm()
     if form.validate_on_submit():
-        hotel = Hotel.query.filter_by(id = form.hotel.data).first_or_404()
+        hotel = Hotel.query.get(form.hotel.data)
         room = Room(
             capacity = form.capacity.data,
             price = form.price.data,
@@ -419,9 +417,27 @@ def view_rooms():
 @app.route("/delete_room/<room_id>")
 @login_required
 def delete_room(room_id):
-    Room.query.filter_by(id=room_id).delete()
+    Room.query.get(room_id).delete()
     db.session.commit()
     return redirect(url_for('view_rooms'))
 
-@app.route("/browse_rooms")
+@app.route("/browse_rooms", methods=["GET", "POST"])
 @login_required
+def browse_rooms():
+    form = SearchRoomForm()
+    if request.method == "POST":
+        rooms = []
+        if (form.chain.data != -1):
+            f_rooms = db.session.execute(
+                "SELECT Room.id FROM Room, Hotel WHERE Room.hotel_id = Hotel.id AND Hotel.owned_by=:param", 
+                {"param":form.chain.data}
+            ).fetchall()
+
+            rooms = [Room.query.get(i) for i in f_rooms]
+        if (form.chain.data == -1):
+            rooms = Room.query.all()
+
+        return render_template("browse_rooms.html", form=form, result = rooms)
+    elif request.method == "GET":
+        pass
+    return render_template("browse_rooms.html", form=form)

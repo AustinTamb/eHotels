@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, DateField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User, Hotel
+from app.models import User, Hotel, Chain, Addr
 from app import db
 
 class LoginForm(FlaskForm):
@@ -36,6 +36,10 @@ class EditUserForm(FlaskForm):
 
     submit = SubmitField('Update Profile')
 
+    def validate_username(self, username):
+        if User.query.filter_by(username = username.data).first() is not None:
+            raise ValidationError("Username already in use!")
+
 class RegistrationForm(FlaskForm):
     # Login information
     username = StringField('Username', validators=[DataRequired()])
@@ -68,6 +72,10 @@ class RegistrationForm(FlaskForm):
     zip = StringField('ZIP/Postal Code', validators=[DataRequired()])
     
     submit = SubmitField('Register')
+
+    def validate_username(self, username):
+        if User.query.filter_by(username = username.data).first() is not None:
+            raise ValidationError("Username already in use!")
 
 class AddChainForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
@@ -211,9 +219,14 @@ class AddRoomForm(FlaskForm):
 
 
 class SearchRoomForm(FlaskForm):
-    from_date = DateField("From", validators=[])
-    to_date = DateField("To", validators=[])
+    from_date = DateField("From", validators=[DataRequired()])
+    to_date = DateField("To", validators=[DataRequired()])
     city = StringField("City", validators=[])
-    chain = StringField("Hotel Chain Name", validators=[])
 
-    submit = SubmitField("Search")
+    chains = Chain.query.all()
+    chain_names = [(-1, "Any")]
+    for c in chains:
+        chain_names.append((c.id, c.name))
+    chain = SelectField("Hotel Chain Name", choices=chain_names, validators=[], default=(-1, "Any"))
+
+    submit = SubmitField('Search')
