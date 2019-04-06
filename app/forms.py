@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, SelectField, FloatField, DateField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Optional
 from app.models import User, Hotel, Chain, Addr, Room
 from app import db
 
@@ -249,6 +249,15 @@ class SearchRoomForm(FlaskForm):
 
     submit = SubmitField('Search')
 
+    def validate_from_date(self, from_date):
+        if self.to_date.data and from_date:
+            if from_date.data > self.to_data.data:
+                raise ValidationError("From date must be smaller than the to date!")
+
+    def validate_to_date(self, to_date):
+        if self.from_date.data and to_date:
+            if self.from_date.data > to_date.data:
+                raise ValidationError("To date must be larger than the from date!")
 
 class EditHotelForm(FlaskForm):
     rooms_amt = IntegerField("Rooms Owned", validators=[DataRequired()])
@@ -300,3 +309,58 @@ class EditRoomForm(FlaskForm):
         h_id = hotel.data
         if Hotel.query.filter_by(id = h_id).first() is None:
             raise ValidationError("No Hotel with this ID exists.")
+
+
+class SearchBookingForm(FlaskForm):
+    booking_id = IntegerField("Booking ID", validators=[Optional()])
+    from_date = DateField("From", validators=[Optional()])
+    to_date = DateField("To", validators=[Optional()])
+    city_opt = db.session.execute("SELECT Addr.city FROM Hotel, Addr WHERE Hotel.address = Addr.id").fetchall()
+    cities = set()
+    cities.add(("Any", "Any"))
+    for c in city_opt:
+        cities.add((c[0], c[0]))
+    del city_opt
+    city = SelectField("City", choices=cities)
+
+    chains = Chain.query.all()
+    chain_names = [('0', "Any")]
+    for c in chains:
+        chain_names.append((str(c.id), c.name))
+    chain = SelectField("Hotel Chain Name", choices=chain_names)
+    room = IntegerField("Room ID", validators=[Optional()])
+
+    submit = SubmitField('Search')
+    def validate_from_date(self, from_date):
+        if self.to_date.data and from_date:
+            if from_date.data > self.to_date.data:
+                raise ValidationError("To date must be larger than the from date!")
+
+    def validate_to_date(self, to_date):
+        if self.from_date.data and to_date:
+            if self.from_date.data > to_date.data:
+                raise ValidationError("From date must be smaller than the to date!")
+
+class EditBookingForm(FlaskForm):
+    checked_in = BooleanField("Customer Checked In")
+    from_date = DateField("From", validators=[DataRequired()])
+    to_date = DateField("To", validators=[DataRequired()])
+
+    room = IntegerField("Room ID", validators=[DataRequired()])
+    user = IntegerField("User ID", validators=[DataRequired()])
+
+    submit = SubmitField('Update Booking')
+
+    def validate_from_date(self, from_date):
+        if self.to_date.data and from_date:
+            if from_date.data > self.to_date.data:
+                raise ValidationError("To date must be larger than the from date!")
+
+    def validate_to_date(self, to_date):
+        if self.from_date.data and to_date:
+            if self.from_date.data > to_date.data:
+                raise ValidationError("From date must be smaller than the to date!")
+
+    def validate_user(self, user):
+        if not User.query.get(user.data).exists():
+            raise ValidationError("User ID does not exist!")

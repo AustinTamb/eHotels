@@ -1,5 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+    <div class="container">
+        <h1 class="text-center">Search for Booking</h1>
+        <p>In order to find customer bookings, enter criteria to reduce the total number of bookings.</p>
+        <br>
+        <div class="d-flex justify-content-center">
+        <form action="{{ url_for('browse_bookings') }}" method="POST">
+            {{ form.hidden_tag() }}
+            <div class="d-flex align-items-center">
+                <p>
+                    {{ form.from_date.label }}<br>
+                    {{ form.from_date(size=2, class="form-control", type="date") }}<br>
+                    {% for error in form.from_date.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="px-3">
+                    {{ form.to_date.label }}<br>
+                    {{ form.to_date(size=2, class="form-control", type="date") }}<br>
+                    {% for error in form.to_date.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.booking_id.label }}<br>
+                    {{ form.booking_id(size=4, class="form-control") }}<br>
+                    {% for error in form.booking_id.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="px-3">
+                    {{ form.room.label }}<br>
+                    {{ form.room(size=4, class="form-control") }}<br>
+                    {% for error in form.room.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.chain.label }}<br>
+                    {{ form.chain(class="form-control") }}<br>
+                    {% for error in form.chain.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="px-3">
+                    {{ form.city.label }}<br>
+                    {{ form.city(class="form-control") }}<br>
+                    {% for error in form.city.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="py-1">
+                    {{ form.submit(class="btn btn-dark") }}
+                </p>
+                
+            </div>
+        </form>
+    </div>
+    </div>
+    <div class="container">
+        {% if booking %}
+            {% include "view_type/booking.html" %}
+        {% endif %}
+    </div>
 {% endblock %}

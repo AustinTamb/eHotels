@@ -6,7 +6,7 @@
         {% if (current_user.id == user.id) %}
             <a class="btn btn-dark" href="{{ url_for('edit_user', username=user.username) }}">Update Profile</a>
             <br>
-            {% include 'booking.html' %}
+            {% include 'view_type/booking.html' %}
         {% endif %}
     </div>
 {% endblock %}

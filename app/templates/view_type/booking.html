@@ -9,7 +9,11 @@
                     </p>
                     {% if c_date %}
                         {% if b.from_date >= c_date %}
-                            
+                            {% if current_user %}
+                                {% if current_user.priv > 0 %}
+                                    <a href="{{ url_for('edit_booking', booking_id = b.id) }}"><span class="fa fa-edit"></span> Edit Booking</a>
+                                {% endif %}
+                            {% endif %}
                             <a href='{{ url_for("cancel_booking", booking_id = b.id) }}'><span class="fa fa-trash-alt"></span> Cancel Booking</a>
                         {% endif %}
                     {% endif %}

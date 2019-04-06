@@ -559,6 +559,7 @@ def book_room(room_id, from_date, to_date):
     
     db.session.commit()
     form = SearchRoomForm()
+    flash(f"Your booking for the room has be registered. Your booking id is: {booking.id}.")
     return render_template("browse_rooms.html", form=form)
 
 @app.route("/cancel_booking/<booking_id>")
@@ -602,4 +603,43 @@ def cancel_booking(booking_id):
 @app.route("/browse_bookings", methods = ["GET", "POST"])
 @login_required
 def browse_bookings():
-    return render_template("browse_bookings.html")
+    form = SearchBookingForm()
+    if form.validate_on_submit():
+        # Get dates
+        # Get all rooms not booked between date range
+        bookings = Booking.query.all()
+
+        return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = bookings)
+    return render_template("browse_bookings.html", form=form)
+
+
+@app.route("/edit_booking/<booking_id>", methods=["GET", "POST"])
+@login_required
+def edit_booking(booking_id):
+    if current_user.priv > 0:
+        booking = Booking.query.get(booking_id)
+        
+        form = EditBookingForm()
+        if form.validate_on_submit():
+            
+            # User Info
+            booking.checked_in = form.checked_in.data
+            booking.from_date = form.from_date.data
+            booking.to_date = form.to_date.data
+            booking.room = form.room.data
+            booking.user = form.user.data
+
+            db.session.commit()
+
+            flash("Modifications have been saved!")
+            return render_template('browse_bookings.html')
+        elif request.method == "GET":
+            form.checked_in.data = booking.checked_in
+            form.from_date.data = booking.from_date
+            form.to_date.data = booking.to_date
+            form.room.data = booking.room
+            form.user.data = booking.user
+
+        return render_template("edit_type/booking.html", title="Edit Booking", form=form, booking_id = booking_id)
+    else:
+        return render_template('browse_bookings.html')
