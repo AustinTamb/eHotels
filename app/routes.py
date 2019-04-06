@@ -273,7 +273,6 @@ def add_hotel():
         )
         db.session.add(hotel)
         db.session.commit()
-
         flash('New Hotel Added!')
         return redirect(url_for('view_hotels'))
     return render_template('add_hotel.html', title='Add Hotel', form=form)
@@ -607,7 +606,40 @@ def browse_bookings():
     if form.validate_on_submit():
         # Get dates
         # Get all rooms not booked between date range
-        bookings = Booking.query.all()
+        if form.booking_id.data:
+            booking = Booking.query.get(form.booking_id.data)
+            if booking:
+                return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = [booking])
+        
+        q = db.session.query(Booking, Room, Hotel, Addr)
+
+        from_date = form.from_date.data
+        if from_date:
+            q = q.filter(Booking.from_date == from_date)
+
+        room_id = form.room.data
+        if room_id:
+            q = q.filter(Booking.room == room_id)
+
+        hotel_id = form.hotel.data
+        if hotel_id:
+            # Filter on rooms with the hotel_id field being the one passed and the 
+            # Bookings with that room id in it
+            q = q.filter(
+                Room.hotel_id == hotel_id, 
+                Booking.room == Room.id
+            )
+
+        city = form.city.data
+        if city != "Any":
+            q = q.filter(
+                Booking.room == Room.id,
+                Hotel.id == Room.hotel_id,
+                Addr.id == Hotel.address,
+                Addr.city == city
+            )
+
+        bookings = set([b[0] for b in q.all()])
 
         return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = bookings)
     return render_template("browse_bookings.html", form=form)
@@ -632,7 +664,7 @@ def edit_booking(booking_id):
             db.session.commit()
 
             flash("Modifications have been saved!")
-            return render_template('browse_bookings.html')
+            return render_template("edit_type/booking.html", title="Edit Booking", form=form, booking_id = booking_id)
         elif request.method == "GET":
             form.checked_in.data = booking.checked_in
             form.from_date.data = booking.from_date

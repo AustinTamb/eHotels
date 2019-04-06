@@ -251,7 +251,7 @@ class SearchRoomForm(FlaskForm):
 
     def validate_from_date(self, from_date):
         if self.to_date.data and from_date:
-            if from_date.data > self.to_data.data:
+            if from_date.data > self.to_date.data:
                 raise ValidationError("From date must be smaller than the to date!")
 
     def validate_to_date(self, to_date):
@@ -314,7 +314,6 @@ class EditRoomForm(FlaskForm):
 class SearchBookingForm(FlaskForm):
     booking_id = IntegerField("Booking ID", validators=[Optional()])
     from_date = DateField("From", validators=[Optional()])
-    to_date = DateField("To", validators=[Optional()])
     city_opt = db.session.execute("SELECT Addr.city FROM Hotel, Addr WHERE Hotel.address = Addr.id").fetchall()
     cities = set()
     cities.add(("Any", "Any"))
@@ -323,23 +322,10 @@ class SearchBookingForm(FlaskForm):
     del city_opt
     city = SelectField("City", choices=cities)
 
-    chains = Chain.query.all()
-    chain_names = [('0', "Any")]
-    for c in chains:
-        chain_names.append((str(c.id), c.name))
-    chain = SelectField("Hotel Chain Name", choices=chain_names)
+    hotel = IntegerField("Hotel ID", validators=[Optional()])
     room = IntegerField("Room ID", validators=[Optional()])
 
     submit = SubmitField('Search')
-    def validate_from_date(self, from_date):
-        if self.to_date.data and from_date:
-            if from_date.data > self.to_date.data:
-                raise ValidationError("To date must be larger than the from date!")
-
-    def validate_to_date(self, to_date):
-        if self.from_date.data and to_date:
-            if self.from_date.data > to_date.data:
-                raise ValidationError("From date must be smaller than the to date!")
 
 class EditBookingForm(FlaskForm):
     checked_in = BooleanField("Customer Checked In")
@@ -362,5 +348,5 @@ class EditBookingForm(FlaskForm):
                 raise ValidationError("From date must be smaller than the to date!")
 
     def validate_user(self, user):
-        if not User.query.get(user.data).exists():
+        if not User.query.get(user.data):
             raise ValidationError("User ID does not exist!")

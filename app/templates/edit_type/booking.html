@@ -2,18 +2,20 @@
 
 {% block content %}
     <h1>Edit Booking</h1>
+    <div class="container">
     <form action="" method="post">
         {{ form.hidden_tag() }}
+        <div class="d-flex">
         <p>
             {{ form.from_date.label }}<br>
-            {{ form.from_date(size=2, class="form-control", type="date") }}<br>
+            {{ form.from_date(class="form-control", type="date") }}<br>
             {% for error in form.from_date.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p class="px-3">
             {{ form.to_date.label }}<br>
-            {{ form.to_date(size=2, class="form-control", type="date") }}<br>
+            {{ form.to_date(class="form-control", type="date") }}<br>
             {% for error in form.to_date.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
@@ -39,8 +41,10 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <div class="container">
-            <p>{{ form.submit(class="btn btn-dark") }}</p>
+        <div>
+            <p class="py-4">{{ form.submit(class="btn btn-dark") }}</p>
+        </div>
         </div>
     </form>
+</div>
 {% endblock %}
