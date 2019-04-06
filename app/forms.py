@@ -242,9 +242,9 @@ class SearchRoomForm(FlaskForm):
         )
     rating = SelectField("Category", choices=ratings)
 
-    size_c = [(0, "Any")]
+    size_c = [("0", "Any")]
     for c in range(1,6):
-        size_c.append((c, c))
+        size_c.append((str(c), c))
     capacity = SelectField("Room Capacity", choices=size_c)
 
     submit = SubmitField('Search')
