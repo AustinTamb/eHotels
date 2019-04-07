@@ -446,8 +446,8 @@ def delete_chain(chain_id):
 
 @app.route("/delete_hotel/<hotel_id>")
 @login_required
-def delete_hotel(chain_id):
-    db.session.delete(Chain.query.get(chain_id))
+def delete_hotel(hotel_id):
+    db.session.delete(Hotel.query.get(hotel_id))
     db.session.commit()
     return redirect(url_for("view_chains"))
 
