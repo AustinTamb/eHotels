@@ -291,7 +291,7 @@ class EditHotelForm(FlaskForm):
             raise ValidationError("Invalid rating range!")
 
     def validate_manager(self, manager):
-        if User.query.get(int(manager.data)).first() == []:
+        if not User.query.get(manager.data):
             raise ValidationError("Manager does not exist!")
 
 
@@ -315,13 +315,14 @@ class EditRoomForm(FlaskForm):
 class SearchBookingForm(FlaskForm):
     booking_id = IntegerField("Booking ID", validators=[Optional()])
     from_date = DateField("From", validators=[Optional()])
-    city_opt = db.session.execute("SELECT Addr.city FROM Hotel, Addr WHERE Hotel.address = Addr.id").fetchall()
-    cities = set()
-    cities.add(("Any", "Any"))
-    for c in city_opt:
-        cities.add((c[0], c[0]))
-    del city_opt
-    city = SelectField("City", choices=cities)
+    address = db.session.query(Addr, Hotel).filter(Addr.id == Hotel.address).distinct(Addr.city)
+    cities = [("Any", "Any")]
+    for e in address.all():
+        cities.append((e[0].city, e[0].city))
+    cities.sort()
+    del address
+
+    city = SelectField("City", choices=cities, default=("Any","Any"))
 
     hotel = IntegerField("Hotel ID", validators=[Optional()])
     room = IntegerField("Room ID", validators=[Optional()])

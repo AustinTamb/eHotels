@@ -7,13 +7,4 @@
         </p>
         <br>
     </div>
-    {% if current_user %}
-        {% if current_user.is_authenticated %}
-            {% include "view_type/search_room.html" %}
-        {% else %}
-            {% include "view_type/register.html" %}
-        {% endif %}
-    {% else %}
-        {% include "view_type/register.html" %}
-    {% endif %}
 {% endblock %}

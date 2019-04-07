@@ -37,14 +37,14 @@
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
-                <p>
+                <p class="px-3">
                     {{ form.city.label }}<br>
                     {{ form.city(class="form-control") }}<br>
                     {% for error in form.city.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
-                <p class="px-2 py-1">
+                <p class="py-1">
                     {{ form.submit(class="btn btn-dark") }}
                 </p>
                 

@@ -381,12 +381,12 @@ def edit_hotel(hotel_id):
             # Phone
             edit_phone(form, ph)
             
-            # User Info
+            # Hotel Info
             hotel.rooms_amt = form.rooms_amt.data
-            chain.manager = form.manager.data
-            chain.rating = form.rating.data
-            chain.email = form.email.data
-            chain.owned_by = form.owned_by.data
+            hotel.manager = form.manager.data
+            hotel.rating = form.rating.data
+            hotel.email = form.email.data
+            hotel.owned_by = form.owned_by.data
             db.session.commit()
 
             flash("Modifications have been saved!")
