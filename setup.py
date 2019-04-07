@@ -7,7 +7,8 @@ setup(name='eHotels',
       author='Austin Tambakopoulos, Jannah Hussein',
       author_email='atamb073@uottawa.ca',
       license='',
-      packages=[
+      packages=[''],
+      install_requires=[
       	'flask',
       	'flask-sqlalchemy',
       	'flask-wtf',
