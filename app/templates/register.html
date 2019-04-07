@@ -1,31 +1,5 @@
 {% extends "base.html" %}
 
 {% block content %}
-    
-    <h1 class="text-center">Registration</h1>
-    <form action="" method="post">
-        <div class="d-flex align-content-start">
-            {{ form.hidden_tag() }}
-            <div class="container">
-                <h3>Login Information</h3>
-                {% include "add_type/login.html" %}
-                <p>
-                    {{ form.password2.label }}<br>
-                    {{ form.password2(size=20, class="form-control") }}<br>
-                    {% for error in form.password2.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </p>
-            </div>
-        </div>
-        <div class="d-flex align-content-start flex-column">
-            {% include "add_type/personal.html" %}
-            {% include "add_type/address.html" %}
-            {% include "add_type/contact.html" %}
-        </div>
-        <div class="container">
-            <p>{{ form.submit(class="btn btn-dark") }}</p>
-        </div>
-        
-    </form>
+    {% include "view_type/register.html" %}
 {% endblock %}

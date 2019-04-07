@@ -10,6 +10,6 @@ class Config(object):
         os.path.join(basedir, 'app.db')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
     UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
     ALLOWED_EXTENSIONS = ['jpg', 'png', 'gif', 'jpeg']

@@ -5,17 +5,19 @@ from app.forms import *
 from app.models import *
 from werkzeug.urls import url_parse
 import datetime
-import time
 
 @app.route("/")
 @app.route("/index")
 def index():
-    user = {"username":"test"}
+    if current_user.is_authenticated:
+        form = SearchRoomForm()
+    else:
+        form = RegistrationForm()
     return render_template(
-        "index.html",
-        title = "Home"
-    )
-
+            "index.html",
+            title = "Home",
+            form = form
+        )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -96,8 +98,9 @@ def user(username):
     
     if booking_slots is None:
         booking_slots = {}
-    
-    
+    else:
+        booking_slots = [get_booking_info(b) for b in booking_slots]
+        print(booking_slots)
     return render_template(
         'user.html', 
         user = user,
@@ -134,7 +137,8 @@ def edit_user(username):
             form.f_name.data = user.first_name
             form.m_name.data = user.middle_name
             form.l_name.data = user.last_name
-            form.email.data = user.email,
+            form.email.data = str(user.email),
+            form.email.data = form.email.data[0]
             form.sin.data = user.sin
 
             # Address
@@ -447,7 +451,10 @@ def delete_chain(chain_id):
 @app.route("/delete_hotel/<hotel_id>")
 @login_required
 def delete_hotel(hotel_id):
-    db.session.delete(Hotel.query.get(hotel_id))
+    hotel = Hotel.query.get(hotel_id)
+    chain = Chain.query.get(hotel.owned_by)
+    chain.hotels_owned -= 1
+    db.session.delete(hotel)
     db.session.commit()
     return redirect(url_for("view_chains"))
 
@@ -481,6 +488,18 @@ def add_room():
         return redirect(url_for('view_rooms'))
     return render_template('add_type/room.html', title='Add Room', form=form)
 
+def get_booking_info(booking):
+    room = Room.query.get(booking.room)
+    booking.room_info = get_room_info(room)
+    return booking
+
+def get_room_info(room):
+    hotel = Hotel.query.get(room.hotel_id)
+    chain = Chain.query.get(hotel.owned_by)
+    room.room_addr = str(Addr.query.get(hotel.address))
+    room.chain_info = chain
+    return room
+
 @app.route("/view_rooms")
 @login_required
 def view_rooms():
@@ -490,46 +509,63 @@ def view_rooms():
 @app.route("/delete_room/<room_id>")
 @login_required
 def delete_room(room_id):
-    db.session.delete(Room.query.get(room_id))
+    room = Room.query.get(room_id)
+    hotel = Hotel.query.get(room.hotel_id)
+    hotel.rooms_amt -= 1
+    db.session.delete(room)
     db.session.commit()
     return redirect(url_for('view_rooms'))
 
 @app.route("/browse_rooms", methods=["GET", "POST"])
-@login_required
 def browse_rooms():
     form = SearchRoomForm()
     if form.validate_on_submit():
-        # Get dates
-        # Get all rooms not booked between date range
-        q = db.session.query(Room, Addr, Chain, Hotel)
-
+        filter_applied = False
+        q = db.session.query(Room, Hotel, Chain, Addr)
+        
         city = str(form.city.data)
         if city != "Any":
-            q = q.filter(Hotel.id == Room.hotel_id, Hotel.address == Addr.id).filter(Addr.city == city)
-
+            q = q.filter(
+                Hotel.id == Room.hotel_id, 
+                Hotel.address == Addr.id, 
+                Addr.city == city
+            )
+            filter_applied = True
+    
         hotel_chain = int(form.chain.data)
         if hotel_chain != 0:
-            q = q.filter(Hotel.owned_by == hotel_chain)
+            q = q.filter(
+                Room.hotel_id == Hotel.id, 
+                Hotel.owned_by == hotel_chain
+            )
+            filter_applied = True
 
         rating = int(form.rating.data)
         if rating != 0:
             q = q.filter(Hotel.rating == rating)
+            filter_applied = True
 
         capacity = int(form.capacity.data)
         if capacity != 0:
             q = q.filter(Room.capacity == capacity)
+            filter_applied = True
 
-        # Get the rooms object
-        rooms = set([r[0] for r in q.all()])
+        if filter_applied:
+            rooms = set([r[0] for r in q.all()])
+        else:
+            rooms = set(Room.query.all())
+
         if BookingSlot.query.all() != []:
             c = db.session.query(Room, BookingSlot)\
             .filter(Room.id == BookingSlot.room)\
             .filter(BookingSlot.date.between(form.from_date.data, form.to_date.data))
             c = set([r[0] for r in c.all()])
             # Remove already booked rooms
-            rooms = rooms - c
+            rooms -= c
+            del c
 
-        return render_template("browse_rooms.html", form=form, result = rooms)
+        rooms = [get_room_info(r) for r in rooms]
+        return render_template("browse_rooms.html", form=form, result = set(rooms))
     return render_template("browse_rooms.html", form=form)
 
 
@@ -609,17 +645,21 @@ def browse_bookings():
         if form.booking_id.data:
             booking = Booking.query.get(form.booking_id.data)
             if booking:
-                return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = [booking])
+                return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = [get_booking_info(booking)])
         
         q = db.session.query(Booking, Room, Hotel, Addr)
+
+        filter_applied = False
 
         from_date = form.from_date.data
         if from_date:
             q = q.filter(Booking.from_date == from_date)
+            filter_applied = True
 
         room_id = form.room.data
         if room_id:
             q = q.filter(Booking.room == room_id)
+            filter_applied = True
 
         hotel_id = form.hotel.data
         if hotel_id:
@@ -629,6 +669,7 @@ def browse_bookings():
                 Room.hotel_id == hotel_id, 
                 Booking.room == Room.id
             )
+            filter_applied = True
 
         city = form.city.data
         if city != "Any":
@@ -638,9 +679,14 @@ def browse_bookings():
                 Addr.id == Hotel.address,
                 Addr.city == city
             )
+            filter_applied = True
 
-        bookings = set([b[0] for b in q.all()])
+        if filter_applied:
+            bookings = [b[0] for b in q.all()]
+        else:
+            bookings = Booking.query.all()
 
+        bookings = [get_booking_info(b) for b in bookings]
         return render_template("browse_bookings.html", form=form, c_date = datetime.date.today(), booking = bookings)
     return render_template("browse_bookings.html", form=form)
 

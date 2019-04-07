@@ -3,7 +3,13 @@
         <div>
             <div class="card">
                 <div class="card-body">
-                    <h5>Room booking: </h5>
+                    <p>Room booking {{ b.id }}:</p>
+                    <h2 class="card-text">
+                        {{ b.room_info.chain_name }} Hotels
+                    </h2>
+                    <p class="card-text">
+                        {{ b.room_info.room_addr }}
+                    </p>
                     <p class="card-text">
                         {{ b.from_date }} - {{ b.to_date }}
                     </p>
@@ -11,6 +17,8 @@
                         {% if b.from_date >= c_date %}
                             {% if current_user %}
                                 {% if current_user.priv > 0 %}
+                                    <a href="{{ url_for('cancel_booking', booking_id = b.id) }}"><span class="fa fa-dollar-sign"></span> Mark Booking as Paid</a>
+                                    <br>
                                     <a href="{{ url_for('edit_booking', booking_id = b.id) }}"><span class="fa fa-edit"></span> Edit Booking</a>
                                     <br>
                                 {% endif %}

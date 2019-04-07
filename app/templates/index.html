@@ -3,9 +3,17 @@
 {% block content %}
     <div class="container text-center">
         <h1>Welcome to eHotels</h1>
-        <p>To start booking a hotel room at one of the various chains, 
-            sign up <a href="{{ url_for('register') }}">here</a>, or, if you already
-            have an account, start browsing!
+        <p>To get start, you can start searching for hotels, or, sign up for an account (if you don't already have one) to be able to make bookings!
         </p>
+        <br>
     </div>
+    {% if current_user %}
+        {% if current_user.is_authenticated %}
+            {% include "view_type/search_room.html" %}
+        {% else %}
+            {% include "view_type/register.html" %}
+        {% endif %}
+    {% else %}
+        {% include "view_type/register.html" %}
+    {% endif %}
 {% endblock %}
